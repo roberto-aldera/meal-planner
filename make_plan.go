@@ -23,7 +23,8 @@ func makePastaPlan(all_meals []Meal) []Meal {
 	initial_meal_idx := 0
 	pasta_plan = append(pasta_plan, all_meals[0])                                       // initialise with a first dish
 	all_meals = append(all_meals[:initial_meal_idx], all_meals[initial_meal_idx+1:]...) // erase dish from the possible options
-	fmt.Printf("Initial pasta plan: %+v\n", pasta_plan)
+	fmt.Println("-- Initial pasta plan --")
+	printMealPlan(pasta_plan)
 
 	for len(pasta_plan) < 5 {
 		idx := rand.Intn(len(all_meals))
@@ -35,6 +36,12 @@ func makePastaPlan(all_meals []Meal) []Meal {
 		}
 	}
 	return pasta_plan
+}
+
+func printMealPlan(meal_plan []Meal) {
+	for i := 0; i < len(meal_plan); i++ {
+		fmt.Printf("%+v\n", meal_plan[i].name_of_dish)
+	}
 }
 
 func main() {
@@ -65,5 +72,6 @@ func main() {
 	all_meals[4] = *meal_5
 
 	pasta_plan := makePastaPlan(all_meals)
-	fmt.Printf("Proposed pasta plan: %+v\n", pasta_plan)
+	fmt.Println("-- Proposed pasta plan --")
+	printMealPlan(pasta_plan)
 }
