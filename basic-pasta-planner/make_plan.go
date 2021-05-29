@@ -44,7 +44,7 @@ func printMealPlan(meal_plan []Meal) {
 	}
 }
 
-func main() {
+func generatePastasAndMakePlan() {
 	fmt.Println("Meal planner is running...")
 
 	// Make some meals to choose from
@@ -74,4 +74,8 @@ func main() {
 	pasta_plan := makePastaPlan(all_meals)
 	fmt.Println("-- Proposed pasta plan --")
 	printMealPlan(pasta_plan)
+}
+
+func main() {
+	generatePastasAndMakePlan()
 }
