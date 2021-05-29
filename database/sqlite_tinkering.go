@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"database/sql"
@@ -8,7 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func main() {
+func RunExampleDatabaseFunctions() {
 	os.Remove("meals.db")
 
 	log.Println("Creating meals.db...")
