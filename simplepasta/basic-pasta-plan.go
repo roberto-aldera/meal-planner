@@ -1,4 +1,4 @@
-package main
+package simplepasta
 
 import (
 	"fmt"
@@ -44,7 +44,7 @@ func printMealPlan(meal_plan []Meal) {
 	}
 }
 
-func generatePastasAndMakePlan() {
+func GeneratePastasAndMakePlan() {
 	fmt.Println("Meal planner is running...")
 
 	// Make some meals to choose from
@@ -74,8 +74,4 @@ func generatePastasAndMakePlan() {
 	pasta_plan := makePastaPlan(all_meals)
 	fmt.Println("-- Proposed pasta plan --")
 	printMealPlan(pasta_plan)
-}
-
-func main() {
-	generatePastasAndMakePlan()
 }
