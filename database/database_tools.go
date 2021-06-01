@@ -17,16 +17,42 @@ func RunMe() {
 	fmt.Println("All done!")
 }
 
-func displayEntries(db *sql.DB) {
-	row, err := db.Query("SELECT Meal, Hours FROM meals ORDER BY Hours") // todo: using * for all wasn't working
+type Meal struct {
+	meal_name    string
+	cooking_time float32
+}
+
+func countNumberOfRows(db *sql.DB) int {
+	var num_rows int
+	err := db.QueryRow("SELECT COUNT(*) FROM meals").Scan(&num_rows)
+	switch {
+	case err != nil:
+		log.Fatal(err)
+	default:
+		log.Printf("Number of rows are %d\n", num_rows)
+	}
+	return num_rows
+}
+
+func loadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
+	row, err := db.Query("SELECT Meal, Hours FROM meals ORDER BY Hours")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer row.Close()
+	num_rows := countNumberOfRows(db)
+	var all_meals = make([]Meal, num_rows)
+	i := 0
 	for row.Next() {
-		var Meal string
-		var time string
-		row.Scan(&Meal, &time)
-		log.Println("Meal: ", Meal, " ", time)
+		var meal Meal
+		row.Scan(&meal.meal_name, &meal.cooking_time)
+		all_meals[i] = meal
+		i++
 	}
+	return all_meals
+}
+
+func displayEntries(db *sql.DB) {
+	all_meals := loadDatabaseEntriesIntoContainer(db)
+	log.Println(all_meals)
 }
