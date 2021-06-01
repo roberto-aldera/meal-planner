@@ -18,8 +18,8 @@ func RunMe() {
 }
 
 type Meal struct {
-	meal_name    string
-	cooking_time float32
+	Meal_name    string
+	Cooking_time float32
 }
 
 func countNumberOfRows(db *sql.DB) int {
@@ -34,7 +34,7 @@ func countNumberOfRows(db *sql.DB) int {
 	return num_rows
 }
 
-func loadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
+func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 	row, err := db.Query("SELECT Meal, Hours FROM meals ORDER BY Hours")
 	if err != nil {
 		log.Fatal(err)
@@ -45,7 +45,7 @@ func loadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 	i := 0
 	for row.Next() {
 		var meal Meal
-		row.Scan(&meal.meal_name, &meal.cooking_time)
+		row.Scan(&meal.Meal_name, &meal.Cooking_time)
 		all_meals[i] = meal
 		i++
 	}
@@ -53,6 +53,6 @@ func loadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 }
 
 func displayEntries(db *sql.DB) {
-	all_meals := loadDatabaseEntriesIntoContainer(db)
+	all_meals := LoadDatabaseEntriesIntoContainer(db)
 	log.Println(all_meals)
 }
