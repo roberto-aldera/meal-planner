@@ -20,7 +20,7 @@ func RunMe() {
 	var best_meal_plan []database.Meal
 	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
 	rand.Seed(time.Now().UTC().UnixNano())
-	num_iterations := 100
+	num_iterations := 1000
 
 	for i := 0; i < num_iterations; i++ {
 		// Need to make copy of slice, as modifications affect underlying array
@@ -84,13 +84,28 @@ func printMealPlan(week_plan []database.Meal) {
 // complex things during the week, etc. and then score accordingly
 func calculateScore(week_plan []database.Meal) float64 {
 	// Higher numbers correspond to days where there is less time to cook
-	time_penalties_per_day := [7]float64{1, 1, 10, 1, 10, -10, 1} // floats maybe?
+	time_penalties_per_day := [7]float64{1, 1, 30, 1, 10, -10, 1}
 	cooking_time_score := 0.0
+	duplicate_score := 0.0
+	final_meal_plan_score := 0.0
 
 	// Score for cooking times on days according to penalties
 	for i := 0; i < len(week_plan); i++ {
 		cooking_time_score += float64(week_plan[i].Cooking_time) * time_penalties_per_day[i]
 	}
 
-	return cooking_time_score
+	// Penalise duplicate categories within the same week
+	tmp_week_plan := make([]database.Meal, len(week_plan))
+	copy(tmp_week_plan, week_plan)
+	visited := make(map[string]bool)
+	for i := 0; i < len(tmp_week_plan); i++ {
+		if visited[tmp_week_plan[i].Category] {
+			duplicate_score += 10
+		} else {
+			visited[tmp_week_plan[i].Category] = true
+		}
+	}
+
+	final_meal_plan_score = cooking_time_score + duplicate_score
+	return final_meal_plan_score
 }
