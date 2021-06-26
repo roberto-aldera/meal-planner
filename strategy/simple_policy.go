@@ -14,6 +14,7 @@ func RunMe() {
 	log.Println("Running policy...")
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
 	defer sqliteDatabase.Close()
+	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 
 	best_score := 100.0 // lower is better
 	var best_meal_plan []database.Meal
@@ -21,17 +22,15 @@ func RunMe() {
 	num_iterations := 100
 
 	for i := 0; i < num_iterations; i++ {
-		// Needed to load meals from database each time, as the meal picker deletes elements (can we pass a copy instead?)
-		all_meals := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-		week_plan := pickRandomMeals(all_meals)
+		week_plan := pickRandomMeals(all_meals_from_database)
 		meal_plan_score := calculateScore(week_plan)
-		fmt.Println("Meal plan score:", meal_plan_score)
 		if meal_plan_score < best_score {
 			best_meal_plan = week_plan
 			best_score = meal_plan_score
 		}
 	}
-	fmt.Println("Best meal plan:")
+
+	fmt.Println("Best meal plan after", num_iterations, "iterations:")
 	printMealPlan(best_meal_plan)
 	fmt.Println("Score:", best_score)
 }
@@ -39,8 +38,8 @@ func RunMe() {
 func pickRandomMeals(all_meals []database.Meal) []database.Meal {
 	// Pick 7 random meals for a start
 	var week_plan []database.Meal // create empty plan
-	initial_meal_idx := 0
-	week_plan = append(week_plan, all_meals[rand.Intn(len(all_meals))])                 // initialise with a first dish
+	initial_meal_idx := rand.Intn(len(all_meals))
+	week_plan = append(week_plan, all_meals[initial_meal_idx])                          // initialise with a first dish
 	all_meals = append(all_meals[:initial_meal_idx], all_meals[initial_meal_idx+1:]...) // erase dish from the possible options
 
 	for len(week_plan) < 7 {

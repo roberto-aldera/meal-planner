@@ -29,7 +29,7 @@ func countNumberOfRows(db *sql.DB) int {
 	case err != nil:
 		log.Fatal(err)
 	default:
-		log.Printf("Number of rows are %d\n", num_rows)
+		// log.Printf("Number of rows are %d\n", num_rows)
 	}
 	return num_rows
 }
