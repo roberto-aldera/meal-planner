@@ -18,11 +18,16 @@ func RunMe() {
 
 	best_score := 100.0 // lower is better
 	var best_meal_plan []database.Meal
+	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
 	rand.Seed(time.Now().UTC().UnixNano())
 	num_iterations := 100
 
 	for i := 0; i < num_iterations; i++ {
-		week_plan := pickRandomMeals(all_meals_from_database)
+		// Need to make copy of slice, as modifications affect underlying array
+		tmp_all_meals := make([]database.Meal, len(all_meals_from_database))
+		copy(tmp_all_meals, all_meals_from_database)
+
+		week_plan := pickRandomMeals(tmp_all_meals)
 		meal_plan_score := calculateScore(week_plan)
 		if meal_plan_score < best_score {
 			best_meal_plan = week_plan
@@ -48,6 +53,19 @@ func pickRandomMeals(all_meals []database.Meal) []database.Meal {
 		week_plan = append(week_plan, meal_under_test)
 		all_meals = append(all_meals[:idx], all_meals[idx+1:]...) // erase meal from available options
 	}
+
+	// Debug: check for duplicates
+	tmp_week_plan := make([]database.Meal, len(week_plan))
+	copy(tmp_week_plan, week_plan)
+	visited := make(map[string]bool)
+	for i := 0; i < len(tmp_week_plan); i++ {
+		if visited[tmp_week_plan[i].Meal_name] {
+			fmt.Println("*** Dupilcate found:", tmp_week_plan[i].Meal_name)
+		} else {
+			visited[tmp_week_plan[i].Meal_name] = true
+		}
+	}
+
 	return week_plan
 }
 
