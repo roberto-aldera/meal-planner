@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/roberto-aldera/meal-planner/database"
 )
@@ -16,8 +17,10 @@ func RunMe() {
 
 	best_score := 100.0 // lower is better
 	var best_meal_plan []database.Meal
+	rand.Seed(time.Now().UTC().UnixNano())
+	num_iterations := 100
 
-	for i := 0; i < 50; i++ {
+	for i := 0; i < num_iterations; i++ {
 		// Needed to load meals from database each time, as the meal picker deletes elements (can we pass a copy instead?)
 		all_meals := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 		week_plan := pickRandomMeals(all_meals)
@@ -63,31 +66,14 @@ func printMealPlan(week_plan []database.Meal) {
 // So tally things like cooking time, frequencies of dishes,
 // complex things during the week, etc. and then score accordingly
 func calculateScore(week_plan []database.Meal) float64 {
-	total_cooking_time := 0.0
-	weekday_cooking_time := 0.0
-
-	// Idea: have multipliers for each day of the week,
-	// so Wednesdays and Fridays are bad days for intensive
-	// cooking times, so penalise them
-	// Another idea: need to encourage longer meals on weekends, at least one...
-	// (or discourage short meals on weekends to some extent, otherwise there's never
-	// incentive to cook more involved dishes)
-	time_penalties_per_day := [7]float64{1, 1, 10, 1, 10, 1, 1} // floats maybe?
+	// Higher numbers correspond to days where there is less time to cook
+	time_penalties_per_day := [7]float64{1, 1, 10, 1, 10, -10, 1} // floats maybe?
 	cooking_time_score := 0.0
 
-	for _, meal := range week_plan {
-		total_cooking_time += float64(meal.Cooking_time)
-	}
-	// fmt.Println("Total cooking time:", total_cooking_time)
-
-	weekday_plan := week_plan[:5]
-	for _, meal := range weekday_plan {
-		weekday_cooking_time += float64(meal.Cooking_time)
-	}
-	// fmt.Println("Weekday cooking time:", weekday_cooking_time)
-
+	// Score for cooking times on days according to penalties
 	for i := 0; i < len(week_plan); i++ {
 		cooking_time_score += float64(week_plan[i].Cooking_time) * time_penalties_per_day[i]
 	}
+
 	return cooking_time_score
 }
