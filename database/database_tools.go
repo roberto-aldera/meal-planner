@@ -21,6 +21,7 @@ type Meal struct {
 	Meal_name    string
 	Cooking_time float32
 	Category     string
+	Lunch_only   bool
 }
 
 func countNumberOfRows(db *sql.DB) int {
@@ -36,7 +37,7 @@ func countNumberOfRows(db *sql.DB) int {
 }
 
 func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
-	row, err := db.Query("SELECT Meal, Hours, Category FROM meals ORDER BY Hours")
+	row, err := db.Query("SELECT Meal, Hours, Category, Lunch FROM meals ORDER BY Hours")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +47,7 @@ func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 	i := 0
 	for row.Next() {
 		var meal Meal
-		row.Scan(&meal.Meal_name, &meal.Cooking_time, &meal.Category)
+		row.Scan(&meal.Meal_name, &meal.Cooking_time, &meal.Category, &meal.Lunch_only)
 		all_meals[i] = meal
 		i++
 	}
