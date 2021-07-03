@@ -10,12 +10,25 @@ import (
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
+type specific_meal struct {
+	Meal_ID     int
+	Day_of_week int
+}
+
 func RunMe() {
 	log.Println("Running policy...")
+
+	// Load meals from database and print out all candidates
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
 	defer sqliteDatabase.Close()
 	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 	printMealDatabase(all_meals_from_database)
+
+	// Handle pre-selected meals
+	var meals_to_load []specific_meal
+	var meal_to_load specific_meal
+	meal_to_load.Meal_ID, meal_to_load.Day_of_week = 29, 0
+	meals_to_load = append(meals_to_load, meal_to_load)
 
 	best_score := 100.0 // lower is better
 	var best_meal_plan []database.Meal
@@ -28,7 +41,7 @@ func RunMe() {
 		tmp_all_meals := make([]database.Meal, len(all_meals_from_database))
 		copy(tmp_all_meals, all_meals_from_database)
 
-		week_plan := pickRandomMeals(tmp_all_meals)
+		week_plan := pickRandomMeals(tmp_all_meals, meals_to_load)
 		meal_plan_score := calculateScore(week_plan)
 		if meal_plan_score < best_score {
 			best_meal_plan = week_plan
@@ -50,11 +63,15 @@ func get_next_empty_slot(week_plan []database.Meal) int {
 	return -1
 }
 
-func pickRandomMeals(all_meals []database.Meal) []database.Meal {
+func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal) []database.Meal {
 	week_plan := make([]database.Meal, 7)
-	initial_meal_idx := 21                                                              // index of a specific meal to use
-	week_plan[3] = all_meals[initial_meal_idx]                                          // make this meal on Tuesday
-	all_meals = append(all_meals[:initial_meal_idx], all_meals[initial_meal_idx+1:]...) // erase dish from the possible options
+
+	// Load pre-selected meals into meal plan
+	for _, meal_to_load := range meals_to_load {
+		week_plan[meal_to_load.Day_of_week] = all_meals[meal_to_load.Meal_ID]                       // make this meal on Tuesday
+		all_meals = append(all_meals[:meal_to_load.Meal_ID], all_meals[meal_to_load.Meal_ID+1:]...) // erase dish from the possible options
+
+	}
 
 	next_idx := get_next_empty_slot(week_plan)
 	for next_idx >= 0 {
