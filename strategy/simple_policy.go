@@ -40,18 +40,28 @@ func RunMe() {
 	fmt.Println("Score:", best_score)
 }
 
+func get_next_empty_slot(week_plan []database.Meal) int {
+	for idx, item := range week_plan {
+		if item.Meal_name == "" {
+			return idx
+		}
+	}
+	return -1
+}
+
 func pickRandomMeals(all_meals []database.Meal) []database.Meal {
-	// Pick 7 random meals for a start
-	var week_plan []database.Meal // create empty plan
-	initial_meal_idx := rand.Intn(len(all_meals))
-	week_plan = append(week_plan, all_meals[initial_meal_idx])                          // initialise with a first dish
+	week_plan := make([]database.Meal, 7)
+	initial_meal_idx := 12                                                              // index of a specific meal to use
+	week_plan[1] = all_meals[initial_meal_idx]                                          // make this meal on Tuesday
 	all_meals = append(all_meals[:initial_meal_idx], all_meals[initial_meal_idx+1:]...) // erase dish from the possible options
 
-	for len(week_plan) < 7 {
+	next_idx := get_next_empty_slot(week_plan)
+	for next_idx >= 0 {
 		idx := rand.Intn(len(all_meals))
 		meal_under_test := all_meals[idx] // get a proposed meal
-		week_plan = append(week_plan, meal_under_test)
+		week_plan[next_idx] = meal_under_test
 		all_meals = append(all_meals[:idx], all_meals[idx+1:]...) // erase meal from available options
+		next_idx = get_next_empty_slot(week_plan)
 	}
 
 	// Debug: check for duplicates
@@ -60,7 +70,7 @@ func pickRandomMeals(all_meals []database.Meal) []database.Meal {
 	visited := make(map[string]bool)
 	for i := 0; i < len(tmp_week_plan); i++ {
 		if visited[tmp_week_plan[i].Meal_name] {
-			fmt.Println("*** Dupilcate found:", tmp_week_plan[i].Meal_name)
+			fmt.Println("*** Duplicate found:", tmp_week_plan[i].Meal_name)
 		} else {
 			visited[tmp_week_plan[i].Meal_name] = true
 		}
@@ -70,13 +80,17 @@ func pickRandomMeals(all_meals []database.Meal) []database.Meal {
 }
 
 func printMealPlan(week_plan []database.Meal) {
-	fmt.Println("Monday:   ", week_plan[0].Meal_name)
-	fmt.Println("Tuesday:  ", week_plan[1].Meal_name)
-	fmt.Println("Wednesday:", week_plan[2].Meal_name)
-	fmt.Println("Thursday: ", week_plan[3].Meal_name)
-	fmt.Println("Friday:   ", week_plan[4].Meal_name)
-	fmt.Println("Saturday: ", week_plan[5].Meal_name)
-	fmt.Println("Sunday:   ", week_plan[6].Meal_name)
+	if len(week_plan) == 7 {
+		fmt.Println("Monday:   ", week_plan[0].Meal_name)
+		fmt.Println("Tuesday:  ", week_plan[1].Meal_name)
+		fmt.Println("Wednesday:", week_plan[2].Meal_name)
+		fmt.Println("Thursday: ", week_plan[3].Meal_name)
+		fmt.Println("Friday:   ", week_plan[4].Meal_name)
+		fmt.Println("Saturday: ", week_plan[5].Meal_name)
+		fmt.Println("Sunday:   ", week_plan[6].Meal_name)
+	} else {
+		fmt.Println("Meal plan not complete.")
+	}
 }
 
 // A big function to hold all the hand-written rules for now
@@ -84,7 +98,7 @@ func printMealPlan(week_plan []database.Meal) {
 // complex things during the week, etc. and then score accordingly
 func calculateScore(week_plan []database.Meal) float64 {
 	// Higher numbers correspond to days where there is less time to cook
-	time_penalties_per_day := [7]float64{1, 1, 30, 1, 30, -10, 5}
+	time_penalties_per_day := [7]float64{1, 1, 30, 1, 30, -10, 20}
 	cooking_time_score := 0.0
 	duplicate_score := 0.0
 	final_meal_plan_score := 0.0
@@ -101,7 +115,7 @@ func calculateScore(week_plan []database.Meal) float64 {
 	visited := make(map[string]bool)
 	for i := 0; i < len(tmp_week_plan); i++ {
 		if visited[tmp_week_plan[i].Category] {
-			duplicate_score += 10
+			duplicate_score += 100
 		} else {
 			visited[tmp_week_plan[i].Category] = true
 		}
