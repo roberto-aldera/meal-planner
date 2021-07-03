@@ -15,6 +15,7 @@ func RunMe() {
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
 	defer sqliteDatabase.Close()
 	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	printMealDatabase(all_meals_from_database)
 
 	best_score := 100.0 // lower is better
 	var best_meal_plan []database.Meal
@@ -51,8 +52,8 @@ func get_next_empty_slot(week_plan []database.Meal) int {
 
 func pickRandomMeals(all_meals []database.Meal) []database.Meal {
 	week_plan := make([]database.Meal, 7)
-	initial_meal_idx := 12                                                              // index of a specific meal to use
-	week_plan[1] = all_meals[initial_meal_idx]                                          // make this meal on Tuesday
+	initial_meal_idx := 21                                                              // index of a specific meal to use
+	week_plan[3] = all_meals[initial_meal_idx]                                          // make this meal on Tuesday
 	all_meals = append(all_meals[:initial_meal_idx], all_meals[initial_meal_idx+1:]...) // erase dish from the possible options
 
 	next_idx := get_next_empty_slot(week_plan)
@@ -93,12 +94,19 @@ func printMealPlan(week_plan []database.Meal) {
 	}
 }
 
+func printMealDatabase(meal_database []database.Meal) {
+	fmt.Println("Meals available are:")
+	for idx, meal := range meal_database {
+		fmt.Println(idx, "->", meal.Meal_name)
+	}
+}
+
 // A big function to hold all the hand-written rules for now
 // So tally things like cooking time, frequencies of dishes,
 // complex things during the week, etc. and then score accordingly
 func calculateScore(week_plan []database.Meal) float64 {
 	// Higher numbers correspond to days where there is less time to cook
-	time_penalties_per_day := [7]float64{1, 1, 30, 1, 30, -10, 20}
+	time_penalties_per_day := [7]float64{1, 1, 30, 1, 30, -10, 30}
 	cooking_time_score := 0.0
 	duplicate_score := 0.0
 	final_meal_plan_score := 0.0
