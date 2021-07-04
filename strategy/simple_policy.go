@@ -15,6 +15,13 @@ type specific_meal struct {
 	Day_of_week int
 }
 
+type Config struct {
+	Number_of_iterations int
+	Day_weights          [7]float64
+	Duplicate_penalty    float64
+	Lunch_penalty        float64
+}
+
 func RunMe() {
 	log.Println("Running policy...")
 
@@ -24,32 +31,38 @@ func RunMe() {
 	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 	printMealDatabase(all_meals_from_database)
 
+	// Build config
+	var config Config
+	config.Number_of_iterations = 1000000
+	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
+	config.Duplicate_penalty = 100
+	config.Lunch_penalty = 100
+
 	// Handle pre-selected meals
 	var meals_to_load []specific_meal
 	var meal_to_load specific_meal
 	meal_to_load.Meal_ID, meal_to_load.Day_of_week = 29, 0
 	meals_to_load = append(meals_to_load, meal_to_load)
 
-	best_score := 100.0 // lower is better
+	best_score := config.Duplicate_penalty // lower is better - just use the penalty as a starting score
 	var best_meal_plan []database.Meal
 	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
 	rand.Seed(time.Now().UTC().UnixNano())
-	num_iterations := 10000
 
-	for i := 0; i < num_iterations; i++ {
+	for i := 0; i < config.Number_of_iterations; i++ {
 		// Need to make copy of slice, as modifications affect underlying array
 		tmp_all_meals := make([]database.Meal, len(all_meals_from_database))
 		copy(tmp_all_meals, all_meals_from_database)
 
-		week_plan := pickRandomMeals(tmp_all_meals, meals_to_load)
-		meal_plan_score := calculateScore(week_plan)
+		week_plan := pickRandomMeals(tmp_all_meals, meals_to_load, config)
+		meal_plan_score := calculateScore(week_plan, config)
 		if meal_plan_score < best_score {
 			best_meal_plan = week_plan
 			best_score = meal_plan_score
 		}
 	}
 
-	fmt.Println("Best meal plan after", num_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
+	fmt.Println("Best meal plan after", config.Number_of_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
 	printMealPlan(best_meal_plan)
 	fmt.Println("Score:", best_score)
 }
@@ -63,7 +76,7 @@ func get_next_empty_slot(week_plan []database.Meal) int {
 	return -1
 }
 
-func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal) []database.Meal {
+func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal, config Config) []database.Meal {
 	week_plan := make([]database.Meal, 7)
 
 	// Load pre-selected meals into meal plan
@@ -121,9 +134,8 @@ func printMealDatabase(meal_database []database.Meal) {
 // A big function to hold all the hand-written rules for now
 // So tally things like cooking time, frequencies of dishes,
 // complex things during the week, etc. and then score accordingly
-func calculateScore(week_plan []database.Meal) float64 {
+func calculateScore(week_plan []database.Meal, config Config) float64 {
 	// Higher numbers correspond to days where there is less time to cook
-	time_penalties_per_day := [7]float64{1, 1, 30, 1, 30, -10, 30}
 	cooking_time_score := 0.0
 	duplicate_score := 0.0
 	final_meal_plan_score := 0.0
@@ -131,7 +143,7 @@ func calculateScore(week_plan []database.Meal) float64 {
 
 	// Score for cooking times on days according to penalties
 	for i := 0; i < len(week_plan); i++ {
-		cooking_time_score += float64(week_plan[i].Cooking_time) * time_penalties_per_day[i]
+		cooking_time_score += float64(week_plan[i].Cooking_time) * config.Day_weights[i]
 	}
 
 	// Penalise duplicate categories within the same week
@@ -140,7 +152,7 @@ func calculateScore(week_plan []database.Meal) float64 {
 	visited := make(map[string]bool)
 	for i := 0; i < len(tmp_week_plan); i++ {
 		if visited[tmp_week_plan[i].Category] {
-			duplicate_score += 100
+			duplicate_score += config.Duplicate_penalty
 		} else {
 			visited[tmp_week_plan[i].Category] = true
 		}
@@ -149,7 +161,7 @@ func calculateScore(week_plan []database.Meal) float64 {
 	// Penalise using lunch-only options for now
 	for i := 0; i < len(week_plan); i++ {
 		if week_plan[i].Lunch_only {
-			lunch_only_score += 100
+			lunch_only_score += config.Lunch_penalty
 		}
 	}
 
