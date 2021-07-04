@@ -39,7 +39,7 @@ func RunMe() {
 	config.Lunch_penalty = 100
 
 	// Handle pre-selected meals
-	meal_IDs := []int{12, 28, 59}
+	meal_IDs := []int{12, 28, 30}
 	meal_days_of_the_week := []int{0, 1, 4}
 	var meals_to_load []specific_meal
 	// Quick check that the inputs are legal
@@ -49,6 +49,10 @@ func RunMe() {
 			meal_to_load.Meal_ID, meal_to_load.Day_of_week = meal_IDs[idx], meal_days_of_the_week[idx]
 			meals_to_load = append(meals_to_load, meal_to_load)
 		}
+	}
+	fmt.Println("Your requested meals:")
+	for _, meal := range meals_to_load {
+		fmt.Println("Day of the week:", meal.Day_of_week, "- meal:", all_meals_from_database[meal.Meal_ID].Meal_name)
 	}
 
 	best_score := config.Duplicate_penalty // lower is better - just use the penalty as a starting score
@@ -69,9 +73,13 @@ func RunMe() {
 		}
 	}
 
-	fmt.Println("Best meal plan after", config.Number_of_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
-	printMealPlan(best_meal_plan)
-	fmt.Println("Score:", best_score)
+	if len(best_meal_plan) == 7 {
+		fmt.Println("Best meal plan after", config.Number_of_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
+		printMealPlan(best_meal_plan)
+		fmt.Println("Score:", best_score)
+	} else {
+		fmt.Println("No valid meal plan was possible with the provided requirements.")
+	}
 }
 
 func get_next_empty_slot(week_plan []database.Meal) int {
