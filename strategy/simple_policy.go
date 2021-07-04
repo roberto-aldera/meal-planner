@@ -33,16 +33,23 @@ func RunMe() {
 
 	// Build config
 	var config Config
-	config.Number_of_iterations = 1000000
+	config.Number_of_iterations = 100000
 	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
 	config.Duplicate_penalty = 100
 	config.Lunch_penalty = 100
 
 	// Handle pre-selected meals
+	meal_IDs := []int{12, 28, 59}
+	meal_days_of_the_week := []int{0, 1, 4}
 	var meals_to_load []specific_meal
-	var meal_to_load specific_meal
-	meal_to_load.Meal_ID, meal_to_load.Day_of_week = 29, 0
-	meals_to_load = append(meals_to_load, meal_to_load)
+	// Quick check that the inputs are legal
+	if len(meal_IDs) == len(meal_days_of_the_week) {
+		for idx := range meal_IDs {
+			var meal_to_load specific_meal
+			meal_to_load.Meal_ID, meal_to_load.Day_of_week = meal_IDs[idx], meal_days_of_the_week[idx]
+			meals_to_load = append(meals_to_load, meal_to_load)
+		}
+	}
 
 	best_score := config.Duplicate_penalty // lower is better - just use the penalty as a starting score
 	var best_meal_plan []database.Meal
