@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"math/rand"
 )
 
 func RunMe() {
@@ -57,4 +58,15 @@ func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 func displayEntries(db *sql.DB) {
 	all_meals := LoadDatabaseEntriesIntoContainer(db)
 	log.Println(all_meals)
+}
+
+// Generate 3-digit unique IDs for each meal to be used to keep track of them in the database
+func GenerateDeterministicMealIDs() {
+	rand.Seed(0)
+	num_IDs := 899
+	all_IDs := rand.Perm(num_IDs)
+	for idx := range all_IDs {
+		all_IDs[idx] += 100
+	}
+	fmt.Println(all_IDs[0:65])
 }
