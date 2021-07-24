@@ -11,13 +11,14 @@ import (
 )
 
 type specific_meal struct {
-	Meal_ID     int
+	Meal_ID_idx int
 	Day_of_week int
 }
 
 type Config struct {
 	Number_of_iterations int
 	Day_weights          [7]float64
+	Minimum_score        float64
 	Duplicate_penalty    float64
 	Lunch_penalty        float64
 }
@@ -33,29 +34,42 @@ func RunMe() {
 
 	// Build config
 	var config Config
-	config.Number_of_iterations = 100000
+	config.Number_of_iterations = 1 //00000
 	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
+	config.Minimum_score = 10000
 	config.Duplicate_penalty = 100
 	config.Lunch_penalty = 100
 
 	// Handle pre-selected meals
-	meal_IDs := []int{12, 28, 30}
+	meal_IDs := []int{197, 752, 255}
+	var meal_ID_idx []int
 	meal_days_of_the_week := []int{0, 1, 4}
 	var meals_to_load []specific_meal
 	// Quick check that the inputs are legal
 	if len(meal_IDs) == len(meal_days_of_the_week) {
+		// Do a conversion from meal_ID to index
+		// Need to go through all meal IDs, and find IDs that are in both lists.
+		// Then save the indices where these occured, and proceed.
+		for _, id := range meal_IDs {
+			for idx, meal := range all_meals_from_database {
+				if meal.ID == id {
+					meal_ID_idx = append(meal_ID_idx, idx)
+				}
+			}
+		}
+
 		for idx := range meal_IDs {
 			var meal_to_load specific_meal
-			meal_to_load.Meal_ID, meal_to_load.Day_of_week = meal_IDs[idx], meal_days_of_the_week[idx]
+			meal_to_load.Meal_ID_idx, meal_to_load.Day_of_week = meal_ID_idx[idx], meal_days_of_the_week[idx] //meal_IDs[idx], meal_days_of_the_week[idx]
 			meals_to_load = append(meals_to_load, meal_to_load)
 		}
 	}
 	fmt.Println("Your requested meals:")
 	for _, meal := range meals_to_load {
-		fmt.Println("Day of the week:", meal.Day_of_week, "- meal:", all_meals_from_database[meal.Meal_ID].Meal_name)
+		fmt.Println("Day of the week:", meal.Day_of_week, "- meal:", all_meals_from_database[meal.Meal_ID_idx].Meal_name)
 	}
 
-	best_score := config.Duplicate_penalty // lower is better - just use the penalty as a starting score
+	best_score := config.Minimum_score // lower is better
 	var best_meal_plan []database.Meal
 	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -96,9 +110,14 @@ func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal, c
 
 	// Load pre-selected meals into meal plan
 	for _, meal_to_load := range meals_to_load {
-		week_plan[meal_to_load.Day_of_week] = all_meals[meal_to_load.Meal_ID]                       // make this meal on Tuesday
-		all_meals = append(all_meals[:meal_to_load.Meal_ID], all_meals[meal_to_load.Meal_ID+1:]...) // erase dish from the possible options
+		week_plan[meal_to_load.Day_of_week] = all_meals[meal_to_load.Meal_ID_idx]
+	}
 
+	// Erase dishes from the possible options - only once all have been added as this alters all_meals
+	// This is broken, the indices used to arrange change with each deletion
+	// Might be better to do this with a map
+	for _, meal_to_load := range meals_to_load {
+		all_meals = append(all_meals[:meal_to_load.Meal_ID_idx], all_meals[meal_to_load.Meal_ID_idx+1:]...)
 	}
 
 	next_idx := get_next_empty_slot(week_plan)
@@ -141,8 +160,8 @@ func printMealPlan(week_plan []database.Meal) {
 
 func printMealDatabase(meal_database []database.Meal) {
 	fmt.Println("Meals available are:")
-	for idx, meal := range meal_database {
-		fmt.Println(idx, "->", meal.Meal_name)
+	for _, meal := range meal_database {
+		fmt.Println(meal.ID, "->", meal.Meal_name)
 	}
 }
 

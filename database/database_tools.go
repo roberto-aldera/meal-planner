@@ -19,6 +19,7 @@ func RunMe() {
 }
 
 type Meal struct {
+	ID           int
 	Meal_name    string
 	Cooking_time float32
 	Category     string
@@ -38,7 +39,7 @@ func countNumberOfRows(db *sql.DB) int {
 }
 
 func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
-	row, err := db.Query("SELECT Meal, Hours, Category, Lunch FROM meals ORDER BY Hours")
+	row, err := db.Query("SELECT ID, Meal, Hours, Category, Lunch FROM meals ORDER BY Category")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +49,7 @@ func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 	i := 0
 	for row.Next() {
 		var meal Meal
-		row.Scan(&meal.Meal_name, &meal.Cooking_time, &meal.Category, &meal.Lunch_only)
+		row.Scan(&meal.ID, &meal.Meal_name, &meal.Cooking_time, &meal.Category, &meal.Lunch_only)
 		all_meals[i] = meal
 		i++
 	}
@@ -62,7 +63,7 @@ func displayEntries(db *sql.DB) {
 
 // Generate 3-digit unique IDs for each meal to be used to keep track of them in the database
 func GenerateDeterministicMealIDs() {
-	rand.Seed(0)
+	rand.Seed(42)
 	num_IDs := 899
 	all_IDs := rand.Perm(num_IDs)
 	for idx := range all_IDs {
