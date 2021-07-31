@@ -8,19 +8,12 @@ import (
 	"time"
 
 	"github.com/roberto-aldera/meal-planner/database"
+	"github.com/roberto-aldera/meal-planner/utilities"
 )
 
 type specific_meal struct {
 	Meal_ID_idx int
 	Day_of_week int
-}
-
-type Config struct {
-	Number_of_iterations int
-	Day_weights          [7]float64
-	Minimum_score        float64
-	Duplicate_penalty    float64
-	Lunch_penalty        float64
 }
 
 func RunMe() {
@@ -30,10 +23,10 @@ func RunMe() {
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
 	defer sqliteDatabase.Close()
 	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-	printMealDatabase(all_meals_from_database)
+	utilities.PrintMealDatabase(all_meals_from_database)
 
 	// Build config
-	var config Config
+	var config utilities.Config
 	config.Number_of_iterations = 1 //00000
 	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
 	config.Minimum_score = 10000
@@ -89,7 +82,7 @@ func RunMe() {
 
 	if len(best_meal_plan) == 7 {
 		fmt.Println("Best meal plan after", config.Number_of_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
-		printMealPlan(best_meal_plan)
+		utilities.PrintMealPlan(best_meal_plan)
 		fmt.Println("Score:", best_score)
 	} else {
 		fmt.Println("No valid meal plan was possible with the provided requirements.")
@@ -103,12 +96,12 @@ func RunMeWithMap() {
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
 	defer sqliteDatabase.Close()
 	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-	printMealDatabase(all_meals_from_database)
+	utilities.PrintMealDatabase(all_meals_from_database)
 
 	meal_map := make_meal_map(all_meals_from_database)
 
 	// Build config
-	var config Config
+	var config utilities.Config
 	config.Number_of_iterations = 100000
 	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
 	config.Minimum_score = 10000
@@ -131,7 +124,7 @@ func RunMeWithMap() {
 
 	if len(best_meal_plan) == 7 {
 		fmt.Println("Best meal plan after", config.Number_of_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
-		printMealPlan(best_meal_plan)
+		utilities.PrintMealPlan(best_meal_plan)
 		fmt.Println("Score:", best_score)
 	} else {
 		fmt.Println("No valid meal plan was possible with the provided requirements.")
@@ -147,7 +140,7 @@ func get_next_empty_slot(week_plan []database.Meal) int {
 	return -1
 }
 
-func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal, config Config) []database.Meal {
+func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal, config utilities.Config) []database.Meal {
 	week_plan := make([]database.Meal, 7)
 
 	// Load pre-selected meals into meal plan
@@ -186,7 +179,7 @@ func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal, c
 	return week_plan
 }
 
-func pickRandomMealsWithMap(meal_map map[int]database.Meal, config Config) []database.Meal {
+func pickRandomMealsWithMap(meal_map map[int]database.Meal, config utilities.Config) []database.Meal {
 	week_plan := make([]database.Meal, 7)
 
 	// Store map keys in a slice, and get N random items from this slice to use in the plan (to avoid picking duplicates)
@@ -222,31 +215,10 @@ func pickRandomMealsWithMap(meal_map map[int]database.Meal, config Config) []dat
 	return week_plan
 }
 
-func printMealPlan(week_plan []database.Meal) {
-	if len(week_plan) == 7 {
-		fmt.Println("Monday:   ", week_plan[0].Meal_name)
-		fmt.Println("Tuesday:  ", week_plan[1].Meal_name)
-		fmt.Println("Wednesday:", week_plan[2].Meal_name)
-		fmt.Println("Thursday: ", week_plan[3].Meal_name)
-		fmt.Println("Friday:   ", week_plan[4].Meal_name)
-		fmt.Println("Saturday: ", week_plan[5].Meal_name)
-		fmt.Println("Sunday:   ", week_plan[6].Meal_name)
-	} else {
-		fmt.Println("Meal plan not complete.")
-	}
-}
-
-func printMealDatabase(meal_database []database.Meal) {
-	fmt.Println("Meals available are:")
-	for _, meal := range meal_database {
-		fmt.Println(meal.ID, "->", meal.Meal_name)
-	}
-}
-
 // A big function to hold all the hand-written rules for now
 // So tally things like cooking time, frequencies of dishes,
 // complex things during the week, etc. and then score accordingly
-func calculateScore(week_plan []database.Meal, config Config) float64 {
+func calculateScore(week_plan []database.Meal, config utilities.Config) float64 {
 	// Higher numbers correspond to days where there is less time to cook
 	cooking_time_score := 0.0
 	duplicate_score := 0.0
