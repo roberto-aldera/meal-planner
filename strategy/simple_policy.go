@@ -96,6 +96,48 @@ func RunMe() {
 	}
 }
 
+func RunMeWithMap() {
+	log.Println("Running policy...")
+
+	// Load meals from database and print out all candidates
+	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
+	defer sqliteDatabase.Close()
+	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	printMealDatabase(all_meals_from_database)
+
+	meal_map := make_meal_map(all_meals_from_database)
+
+	// Build config
+	var config Config
+	config.Number_of_iterations = 100000
+	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
+	config.Minimum_score = 10000
+	config.Duplicate_penalty = 100
+	config.Lunch_penalty = 100
+
+	best_score := config.Minimum_score // lower is better
+	var best_meal_plan []database.Meal
+	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	for i := 0; i < config.Number_of_iterations; i++ {
+		week_plan := pickRandomMealsWithMap(meal_map, config)
+		meal_plan_score := calculateScore(week_plan, config)
+		if meal_plan_score < best_score {
+			best_meal_plan = week_plan
+			best_score = meal_plan_score
+		}
+	}
+
+	if len(best_meal_plan) == 7 {
+		fmt.Println("Best meal plan after", config.Number_of_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
+		printMealPlan(best_meal_plan)
+		fmt.Println("Score:", best_score)
+	} else {
+		fmt.Println("No valid meal plan was possible with the provided requirements.")
+	}
+}
+
 func get_next_empty_slot(week_plan []database.Meal) int {
 	for idx, item := range week_plan {
 		if item.Meal_name == "" {
@@ -127,6 +169,42 @@ func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal, c
 		week_plan[next_idx] = meal_under_test
 		all_meals = append(all_meals[:idx], all_meals[idx+1:]...) // erase meal from available options
 		next_idx = get_next_empty_slot(week_plan)
+	}
+
+	// Debug: check for duplicates
+	tmp_week_plan := make([]database.Meal, len(week_plan))
+	copy(tmp_week_plan, week_plan)
+	visited := make(map[string]bool)
+	for i := 0; i < len(tmp_week_plan); i++ {
+		if visited[tmp_week_plan[i].Meal_name] {
+			fmt.Println("*** Duplicate found:", tmp_week_plan[i].Meal_name)
+		} else {
+			visited[tmp_week_plan[i].Meal_name] = true
+		}
+	}
+
+	return week_plan
+}
+
+func pickRandomMealsWithMap(meal_map map[int]database.Meal, config Config) []database.Meal {
+	week_plan := make([]database.Meal, 7)
+
+	// Store map keys in a slice, and get N random items from this slice to use in the plan (to avoid picking duplicates)
+	// Later: remove elements from slice that are keys already hand-picked by user
+	slice_of_keys := make([]int, 0)
+	for key := range meal_map {
+		slice_of_keys = append(slice_of_keys, key)
+	}
+
+	random_indices := rand.Perm(len(meal_map))
+	key_subset := make([]int, 0)
+	for i := 0; i < len(week_plan); i++ {
+		key_subset = append(key_subset, slice_of_keys[random_indices[i]])
+	}
+
+	for idx := 0; idx < len(week_plan); idx++ {
+		meal_under_test := meal_map[key_subset[idx]] // get a proposed meal
+		week_plan[idx] = meal_under_test
 	}
 
 	// Debug: check for duplicates
@@ -201,4 +279,12 @@ func calculateScore(week_plan []database.Meal, config Config) float64 {
 
 	final_meal_plan_score = cooking_time_score + duplicate_score + lunch_only_score
 	return final_meal_plan_score
+}
+
+func make_meal_map(all_meals_from_database []database.Meal) map[int]database.Meal {
+	meal_map := make(map[int]database.Meal)
+	for i := 0; i < len(all_meals_from_database); i++ {
+		meal_map[all_meals_from_database[i].ID] = all_meals_from_database[i]
+	}
+	return meal_map
 }
