@@ -11,11 +11,6 @@ import (
 	"github.com/roberto-aldera/meal-planner/utilities"
 )
 
-type specific_meal struct {
-	Meal_ID_idx int
-	Day_of_week int
-}
-
 func RunMe() {
 	log.Println("Running policy...")
 
@@ -37,7 +32,7 @@ func RunMe() {
 	meal_IDs := []int{197, 752, 255}
 	var meal_ID_idx []int
 	meal_days_of_the_week := []int{0, 1, 4}
-	var meals_to_load []specific_meal
+	var meals_to_load []utilities.Specific_meal
 	// Quick check that the inputs are legal
 	if len(meal_IDs) == len(meal_days_of_the_week) {
 		// Do a conversion from meal_ID to index
@@ -52,7 +47,7 @@ func RunMe() {
 		}
 
 		for idx := range meal_IDs {
-			var meal_to_load specific_meal
+			var meal_to_load utilities.Specific_meal
 			meal_to_load.Meal_ID_idx, meal_to_load.Day_of_week = meal_ID_idx[idx], meal_days_of_the_week[idx] //meal_IDs[idx], meal_days_of_the_week[idx]
 			meals_to_load = append(meals_to_load, meal_to_load)
 		}
@@ -73,7 +68,7 @@ func RunMe() {
 		copy(tmp_all_meals, all_meals_from_database)
 
 		week_plan := pickRandomMeals(tmp_all_meals, meals_to_load, config)
-		meal_plan_score := calculateScore(week_plan, config)
+		meal_plan_score := utilities.CalculateScore(week_plan, config)
 		if meal_plan_score < best_score {
 			best_meal_plan = week_plan
 			best_score = meal_plan_score
@@ -115,7 +110,7 @@ func RunMeWithMap() {
 
 	for i := 0; i < config.Number_of_iterations; i++ {
 		week_plan := pickRandomMealsWithMap(meal_map, config)
-		meal_plan_score := calculateScore(week_plan, config)
+		meal_plan_score := utilities.CalculateScore(week_plan, config)
 		if meal_plan_score < best_score {
 			best_meal_plan = week_plan
 			best_score = meal_plan_score
@@ -140,7 +135,7 @@ func get_next_empty_slot(week_plan []database.Meal) int {
 	return -1
 }
 
-func pickRandomMeals(all_meals []database.Meal, meals_to_load []specific_meal, config utilities.Config) []database.Meal {
+func pickRandomMeals(all_meals []database.Meal, meals_to_load []utilities.Specific_meal, config utilities.Config) []database.Meal {
 	week_plan := make([]database.Meal, 7)
 
 	// Load pre-selected meals into meal plan
@@ -213,44 +208,6 @@ func pickRandomMealsWithMap(meal_map map[int]database.Meal, config utilities.Con
 	}
 
 	return week_plan
-}
-
-// A big function to hold all the hand-written rules for now
-// So tally things like cooking time, frequencies of dishes,
-// complex things during the week, etc. and then score accordingly
-func calculateScore(week_plan []database.Meal, config utilities.Config) float64 {
-	// Higher numbers correspond to days where there is less time to cook
-	cooking_time_score := 0.0
-	duplicate_score := 0.0
-	final_meal_plan_score := 0.0
-	lunch_only_score := 0.0
-
-	// Score for cooking times on days according to penalties
-	for i := 0; i < len(week_plan); i++ {
-		cooking_time_score += float64(week_plan[i].Cooking_time) * config.Day_weights[i]
-	}
-
-	// Penalise duplicate categories within the same week
-	tmp_week_plan := make([]database.Meal, len(week_plan))
-	copy(tmp_week_plan, week_plan)
-	visited := make(map[string]bool)
-	for i := 0; i < len(tmp_week_plan); i++ {
-		if visited[tmp_week_plan[i].Category] {
-			duplicate_score += config.Duplicate_penalty
-		} else {
-			visited[tmp_week_plan[i].Category] = true
-		}
-	}
-
-	// Penalise using lunch-only options for now
-	for i := 0; i < len(week_plan); i++ {
-		if week_plan[i].Lunch_only {
-			lunch_only_score += config.Lunch_penalty
-		}
-	}
-
-	final_meal_plan_score = cooking_time_score + duplicate_score + lunch_only_score
-	return final_meal_plan_score
 }
 
 func make_meal_map(all_meals_from_database []database.Meal) map[int]database.Meal {

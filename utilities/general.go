@@ -14,6 +14,11 @@ type Config struct {
 	Lunch_penalty        float64
 }
 
+type Specific_meal struct {
+	Meal_ID_idx int
+	Day_of_week int
+}
+
 func PrintMealDatabase(meal_database []database.Meal) {
 	fmt.Println("Meals available are:")
 	for _, meal := range meal_database {
