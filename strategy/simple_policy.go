@@ -103,6 +103,14 @@ func RunMeWithMap() {
 	config.Duplicate_penalty = 100
 	config.Lunch_penalty = 100
 
+	// Load meal requests here
+	week_plan := loadMealRequests(meal_map)
+	// Print meal requests - just the whole week, but with a few gaps filled in now
+	fmt.Println("--------------------------------------------------------------------------------")
+	fmt.Println("Your requested meals:")
+	utilities.PrintMealPlan(week_plan)
+	fmt.Println("--------------------------------------------------------------------------------")
+
 	best_score := config.Minimum_score // lower is better
 	var best_meal_plan []database.Meal
 	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
@@ -216,4 +224,22 @@ func makeMealMap(all_meals_from_database []database.Meal) map[int]database.Meal 
 		meal_map[all_meals_from_database[i].ID] = all_meals_from_database[i]
 	}
 	return meal_map
+}
+
+// TODO: return a slice that is partially filled by the requests
+// Possibly also edit the meal map here, to delete reuqested meals as viable options?
+// Maybe that's better in another function that is called just after this one.
+func loadMealRequests(meal_map map[int]database.Meal) []database.Meal {
+	week_plan := make([]database.Meal, 7)
+
+	// TODO: take these as inputs into this function
+	meal_IDs := []int{197, 752, 255}
+	meal_days_of_the_week := []int{0, 1, 4} // TODO: check values are legal weekdays
+	// Quick check that the inputs are legal
+	if len(meal_IDs) == len(meal_days_of_the_week) {
+		for idx, week_day := range meal_days_of_the_week {
+			week_plan[week_day] = meal_map[meal_IDs[idx]]
+		}
+	}
+	return week_plan
 }
