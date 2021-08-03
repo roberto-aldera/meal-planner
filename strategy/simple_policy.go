@@ -93,7 +93,7 @@ func RunMeWithMap() {
 	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 	utilities.PrintMealDatabase(all_meals_from_database)
 
-	meal_map := make_meal_map(all_meals_from_database)
+	meal_map := makeMealMap(all_meals_from_database)
 
 	// Build config
 	var config utilities.Config
@@ -126,7 +126,7 @@ func RunMeWithMap() {
 	}
 }
 
-func get_next_empty_slot(week_plan []database.Meal) int {
+func getNextEmptySlot(week_plan []database.Meal) int {
 	for idx, item := range week_plan {
 		if item.Meal_name == "" {
 			return idx
@@ -150,13 +150,13 @@ func pickRandomMeals(all_meals []database.Meal, meals_to_load []utilities.Specif
 		all_meals = append(all_meals[:meal_to_load.Meal_ID_idx], all_meals[meal_to_load.Meal_ID_idx+1:]...)
 	}
 
-	next_idx := get_next_empty_slot(week_plan)
+	next_idx := getNextEmptySlot(week_plan)
 	for next_idx >= 0 {
 		idx := rand.Intn(len(all_meals))
 		meal_under_test := all_meals[idx] // get a proposed meal
 		week_plan[next_idx] = meal_under_test
 		all_meals = append(all_meals[:idx], all_meals[idx+1:]...) // erase meal from available options
-		next_idx = get_next_empty_slot(week_plan)
+		next_idx = getNextEmptySlot(week_plan)
 	}
 
 	// Debug: check for duplicates
@@ -210,7 +210,7 @@ func pickRandomMealsWithMap(meal_map map[int]database.Meal, config utilities.Con
 	return week_plan
 }
 
-func make_meal_map(all_meals_from_database []database.Meal) map[int]database.Meal {
+func makeMealMap(all_meals_from_database []database.Meal) map[int]database.Meal {
 	meal_map := make(map[int]database.Meal)
 	for i := 0; i < len(all_meals_from_database); i++ {
 		meal_map[all_meals_from_database[i].ID] = all_meals_from_database[i]
