@@ -22,7 +22,7 @@ func RunMe() {
 
 	// Build config
 	var config utilities.Config
-	config.Number_of_iterations = 1 //00000
+	config.Number_of_iterations = 100000
 	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
 	config.Minimum_score = 10000
 	config.Duplicate_penalty = 100
@@ -103,23 +103,22 @@ func RunMeWithMap() {
 	config.Duplicate_penalty = 100
 	config.Lunch_penalty = 100
 
-	// Load meal requests here
-	week_plan := loadMealRequests(meal_map)
-	// Print meal requests - just the whole week, but with a few gaps filled in now
+	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
-	utilities.PrintMealPlan(week_plan)
+	utilities.PrintMealPlan(week_plan_with_requests)
 	fmt.Println("--------------------------------------------------------------------------------")
 
 	best_score := config.Minimum_score // lower is better
-	var best_meal_plan []database.Meal
+	best_meal_plan := make([]database.Meal, len(week_plan_with_requests))
 	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	for i := 0; i < config.Number_of_iterations; i++ {
-		week_plan := pickRandomMealsWithMap(meal_map, config)
+		week_plan := pickRandomMealsWithMap(meal_map, week_plan_with_requests, config)
 		meal_plan_score := utilities.CalculateScore(week_plan, config)
 		if meal_plan_score < best_score {
+			// fmt.Println("New high score:", meal_plan_score, "idx = ", i)
 			best_meal_plan = week_plan
 			best_score = meal_plan_score
 		}
@@ -182,25 +181,28 @@ func pickRandomMeals(all_meals []database.Meal, meals_to_load []utilities.Specif
 	return week_plan
 }
 
-func pickRandomMealsWithMap(meal_map map[int]database.Meal, config utilities.Config) []database.Meal {
-	week_plan := make([]database.Meal, 7)
-
+func pickRandomMealsWithMap(meal_map map[int]database.Meal, week_plan_with_requests []database.Meal, config utilities.Config) []database.Meal {
 	// Store map keys in a slice, and get N random items from this slice to use in the plan (to avoid picking duplicates)
-	// Later: remove elements from slice that are keys already hand-picked by user
 	slice_of_keys := make([]int, 0)
 	for key := range meal_map {
 		slice_of_keys = append(slice_of_keys, key)
 	}
 
+	// Get random subset of meals to store
 	random_indices := rand.Perm(len(meal_map))
 	key_subset := make([]int, 0)
-	for i := 0; i < len(week_plan); i++ {
+	for i := 0; i < len(week_plan_with_requests); i++ {
 		key_subset = append(key_subset, slice_of_keys[random_indices[i]])
 	}
 
+	// Insert stored meals into week plan
+	week_plan := make([]database.Meal, len(week_plan_with_requests))
+	copy(week_plan, week_plan_with_requests)
 	for idx := 0; idx < len(week_plan); idx++ {
-		meal_under_test := meal_map[key_subset[idx]] // get a proposed meal
-		week_plan[idx] = meal_under_test
+		if week_plan[idx].ID == 0 { // indicates an empty slot in the week plan that can be filled
+			meal_under_test := meal_map[key_subset[idx]] // get a proposed meal
+			week_plan[idx] = meal_under_test
+		}
 	}
 
 	// Debug: check for duplicates
@@ -226,11 +228,11 @@ func makeMealMap(all_meals_from_database []database.Meal) map[int]database.Meal 
 	return meal_map
 }
 
-// TODO: return a slice that is partially filled by the requests
+// Return a slice that is partially filled by the requests
 // Possibly also edit the meal map here, to delete reuqested meals as viable options?
 // Maybe that's better in another function that is called just after this one.
-func loadMealRequests(meal_map map[int]database.Meal) []database.Meal {
-	week_plan := make([]database.Meal, 7)
+func loadMealRequestsAndUpdateMap(meal_map map[int]database.Meal) ([]database.Meal, map[int]database.Meal) {
+	week_plan_with_requests := make([]database.Meal, 7)
 
 	// TODO: take these as inputs into this function
 	meal_IDs := []int{197, 752, 255}
@@ -238,8 +240,10 @@ func loadMealRequests(meal_map map[int]database.Meal) []database.Meal {
 	// Quick check that the inputs are legal
 	if len(meal_IDs) == len(meal_days_of_the_week) {
 		for idx, week_day := range meal_days_of_the_week {
-			week_plan[week_day] = meal_map[meal_IDs[idx]]
+			week_plan_with_requests[week_day] = meal_map[meal_IDs[idx]]
+			delete(meal_map, meal_IDs[idx])
 		}
 	}
-	return week_plan
+	fmt.Println(len(meal_map))
+	return week_plan_with_requests, meal_map
 }
