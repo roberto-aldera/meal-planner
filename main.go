@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-	// database.RunMe()
-	strategy.RunMeWithMap()
+	strategy.MakeMealPlan()
 	// database.GenerateDeterministicMealIDs()
 }
