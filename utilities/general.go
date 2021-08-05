@@ -41,3 +41,44 @@ func PrintMealPlan(week_plan []database.Meal) {
 		fmt.Println("Meal plan not complete.")
 	}
 }
+
+func ValidateConfiguration(configuration Config) bool {
+	fmt.Println("Running configuration validation...")
+
+	if configuration.Number_of_iterations < 1 || configuration.Number_of_iterations > 1000000 {
+		fmt.Println("Configuration error: number of iterations", configuration.Number_of_iterations, "is outside of range")
+		return false
+	}
+	for _, weight := range configuration.Day_weights {
+		if weight < -100 || weight > 100 {
+			fmt.Println("Configuration error: day weight of", weight, "is unreasonable")
+			return false
+		}
+	}
+	if configuration.Minimum_score < 0 {
+		fmt.Println("Configuration error: minimum score", configuration.Minimum_score, "is negative")
+		return false
+	}
+	if configuration.Duplicate_penalty < 0 {
+		fmt.Println("Configuration error: duplicate penalty", configuration.Duplicate_penalty, "is negative")
+		return false
+	}
+	if configuration.Lunch_penalty < 0 {
+		fmt.Println("Configuration error: lunch penalty", configuration.Lunch_penalty, "is negative")
+		return false
+	}
+	if len(configuration.Preference_meal_IDs) < 0 || len(configuration.Preference_meal_IDs) > 7 {
+		fmt.Println("Configuration error: Preference_meal_IDs length is out of range")
+		return false
+	}
+	if len(configuration.Preference_meal_days_of_week) < 0 || len(configuration.Preference_meal_days_of_week) > 7 {
+		fmt.Println("Configuration error: Preference_meal_days_of_week length is out of range")
+		return false
+	}
+	if len(configuration.Preference_meal_IDs) != len(configuration.Preference_meal_days_of_week) {
+		fmt.Println("Configuration error: Preference_meal_IDs length is different to Preference_meal_days_of_week")
+		return false
+	}
+
+	return true
+}

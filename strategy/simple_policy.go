@@ -32,6 +32,10 @@ func MakeMealPlan() {
 	config.Preference_meal_IDs = []int{197, 752, 255}
 	config.Preference_meal_days_of_week = []int{0, 1, 4}
 
+	if !utilities.ValidateConfiguration(config) {
+		fmt.Println("Configuration is invalid!")
+	}
+
 	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map, config)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
