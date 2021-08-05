@@ -29,8 +29,10 @@ func MakeMealPlan() {
 	config.Minimum_score = 10000
 	config.Duplicate_penalty = 100
 	config.Lunch_penalty = 100
+	config.Preference_meal_IDs = []int{197, 752, 255}
+	config.Preference_meal_days_of_week = []int{0, 1, 4}
 
-	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map)
+	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map, config)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
 	utilities.PrintMealPlan(week_plan_with_requests)
@@ -110,19 +112,15 @@ func makeMealMap(all_meals_from_database []database.Meal) map[int]database.Meal 
 // Return a slice that is partially filled by the requests
 // Possibly also edit the meal map here, to delete reuqested meals as viable options?
 // Maybe that's better in another function that is called just after this one.
-func loadMealRequestsAndUpdateMap(meal_map map[int]database.Meal) ([]database.Meal, map[int]database.Meal) {
+func loadMealRequestsAndUpdateMap(meal_map map[int]database.Meal, config utilities.Config) ([]database.Meal, map[int]database.Meal) {
 	week_plan_with_requests := make([]database.Meal, 7)
 
-	// TODO: take these as inputs into this function
-	meal_IDs := []int{197, 752, 255}
-	meal_days_of_the_week := []int{0, 1, 4} // TODO: check values are legal weekdays
-	// Quick check that the inputs are legal
-	if len(meal_IDs) == len(meal_days_of_the_week) {
-		for idx, week_day := range meal_days_of_the_week {
-			week_plan_with_requests[week_day] = meal_map[meal_IDs[idx]]
-			delete(meal_map, meal_IDs[idx])
+	// Quick check that the inputs are legal, which really should be done in a config validation somewhere...
+	if len(config.Preference_meal_IDs) == len(config.Preference_meal_days_of_week) {
+		for idx, week_day := range config.Preference_meal_days_of_week {
+			week_plan_with_requests[week_day] = meal_map[config.Preference_meal_IDs[idx]]
+			delete(meal_map, config.Preference_meal_IDs[idx])
 		}
 	}
-	fmt.Println(len(meal_map))
 	return week_plan_with_requests, meal_map
 }

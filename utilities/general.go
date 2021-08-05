@@ -7,11 +7,13 @@ import (
 )
 
 type Config struct {
-	Number_of_iterations int
-	Day_weights          [7]float64
-	Minimum_score        float64
-	Duplicate_penalty    float64
-	Lunch_penalty        float64
+	Number_of_iterations         int
+	Day_weights                  [7]float64
+	Minimum_score                float64
+	Duplicate_penalty            float64
+	Lunch_penalty                float64
+	Preference_meal_IDs          []int
+	Preference_meal_days_of_week []int
 }
 
 type Specific_meal struct {
