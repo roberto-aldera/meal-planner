@@ -18,9 +18,10 @@ func MakeMealPlan() {
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
 	defer sqliteDatabase.Close()
 	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-	utilities.PrintMealDatabase(all_meals_from_database)
 
 	meal_map := makeMealMap(all_meals_from_database)
+	categories := utilities.GetMealCategories(meal_map)
+	utilities.PrintMealDatabaseWithCategories(all_meals_from_database, categories)
 
 	// Build config
 	var config utilities.Config
@@ -29,8 +30,8 @@ func MakeMealPlan() {
 	config.Minimum_score = 10000
 	config.Duplicate_penalty = 100
 	config.Lunch_penalty = 100
-	config.Preference_meal_IDs = []int{197, 752, 255}
-	config.Preference_meal_days_of_week = []int{0, 1, 4}
+	config.Preference_meal_IDs = []int{329, 412}
+	config.Preference_meal_days_of_week = []int{0, 3}
 
 	if !utilities.ValidateConfiguration(config) {
 		fmt.Println("Configuration is invalid!")

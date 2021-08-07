@@ -28,6 +28,20 @@ func PrintMealDatabase(meal_database []database.Meal) {
 	}
 }
 
+func PrintMealDatabaseWithCategories(meal_database []database.Meal, categories []string) {
+	fmt.Println("Meals available are:")
+	for _, category := range categories {
+		fmt.Println("\n------------------------------>", category)
+
+		for _, meal := range meal_database {
+			if meal.Category == category {
+				fmt.Println(meal.ID, "->", meal.Meal_name)
+			}
+		}
+	}
+
+}
+
 func PrintMealPlan(week_plan []database.Meal) {
 	if len(week_plan) == 7 {
 		fmt.Println("Monday:   ", week_plan[0].Meal_name)
@@ -43,6 +57,7 @@ func PrintMealPlan(week_plan []database.Meal) {
 }
 
 func ValidateConfiguration(configuration Config) bool {
+	// TODO: use panic perhaps?
 	fmt.Println("Running configuration validation...")
 
 	if configuration.Number_of_iterations < 1 || configuration.Number_of_iterations > 1000000 {
@@ -81,4 +96,23 @@ func ValidateConfiguration(configuration Config) bool {
 	}
 
 	return true
+}
+
+func GetMealCategories(meal_map map[int]database.Meal) []string {
+	categories := make([]string, 0)
+	for _, meal := range meal_map {
+		if !IsInSlice(categories, meal.Category) {
+			categories = append(categories, meal.Category)
+		}
+	}
+	return categories
+}
+
+func IsInSlice(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
 }
