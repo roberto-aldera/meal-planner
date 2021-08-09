@@ -23,17 +23,7 @@ func MakeMealPlan() {
 	categories := utilities.GetMealCategories(meal_map)
 	utilities.PrintMealDatabaseWithCategories(all_meals_from_database, categories)
 
-	// Build config
-	var config utilities.Config
-	config.Number_of_iterations = 100000
-	config.Day_weights = [7]float64{1, 1, 30, 1, 30, -10, 30}
-	config.Minimum_score = 10000
-	config.Duplicate_penalty = 100
-	config.Lunch_penalty = 100
-	config.Preference_meal_IDs = []int{329, 412}
-	config.Preference_meal_days_of_week = []int{0, 3}
-	config.Previous_meals_to_exclude = []int{755, 105, 153, 224, 158}
-	config.Special_exclusions = []int{765}
+	config := utilities.LoadConfiguration("meal_planner_config.json")
 
 	if !utilities.ValidateConfiguration(config) {
 		fmt.Println("Configuration is invalid!")

@@ -1,7 +1,9 @@
 package utilities
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 
 	"github.com/roberto-aldera/meal-planner/database"
@@ -57,6 +59,21 @@ func PrintMealPlan(week_plan []database.Meal) {
 	} else {
 		fmt.Println("Meal plan not complete.")
 	}
+}
+
+func LoadConfiguration(config_file_path string) Config {
+	var configuration Config
+	file, read_err := os.Open(config_file_path)
+	if read_err != nil {
+		fmt.Println(read_err.Error())
+	}
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	decoder_err := decoder.Decode(&configuration)
+	if decoder_err != nil {
+		fmt.Println("error:", decoder_err)
+	}
+	return configuration
 }
 
 func ValidateConfiguration(configuration Config) bool {
