@@ -30,9 +30,8 @@ func MakeMealPlan() {
 
 	config := utilities.LoadConfiguration(*config_file_path)
 
-	if !utilities.ValidateConfiguration(config) {
-		fmt.Println("Configuration is invalid!")
-	}
+	utilities.ValidateConfiguration(config)
+
 	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map, config)
 	meal_map = removeSpecialItems(meal_map, config.Special_exclusions, config.Previous_meals_to_exclude)
 	fmt.Println("--------------------------------------------------------------------------------")

@@ -76,46 +76,38 @@ func LoadConfiguration(config_file_path string) Config {
 	return configuration
 }
 
-func ValidateConfiguration(configuration Config) bool {
-	// TODO: use panic perhaps?
-	fmt.Println("Running configuration validation...")
-
+func ValidateConfiguration(configuration Config) {
 	if configuration.Number_of_iterations < 1 || configuration.Number_of_iterations > 1000000 {
-		fmt.Println("Configuration error: number of iterations", configuration.Number_of_iterations, "is outside of range")
-		return false
+		errorString := fmt.Sprintf("Configuration error. Number of iterations is is outside of range: %d", configuration.Number_of_iterations)
+		panic(errorString)
 	}
 	for _, weight := range configuration.Day_weights {
 		if weight < -100 || weight > 100 {
-			fmt.Println("Configuration error: day weight of", weight, "is unreasonable")
-			return false
+			errorString := fmt.Sprintf("Configuration error. Day weight is unreasonable: %f", weight)
+			panic(errorString)
 		}
 	}
 	if configuration.Minimum_score < 0 {
-		fmt.Println("Configuration error: minimum score", configuration.Minimum_score, "is negative")
-		return false
+		errorString := fmt.Sprintf("Configuration error. Minimum score is negative: %f", configuration.Minimum_score)
+		panic(errorString)
 	}
 	if configuration.Duplicate_penalty < 0 {
-		fmt.Println("Configuration error: duplicate penalty", configuration.Duplicate_penalty, "is negative")
-		return false
+		errorString := fmt.Sprintf("Configuration error. Duplicate penalty is negative: %f", configuration.Duplicate_penalty)
+		panic(errorString)
 	}
 	if configuration.Lunch_penalty < 0 {
-		fmt.Println("Configuration error: lunch penalty", configuration.Lunch_penalty, "is negative")
-		return false
+		errorString := fmt.Sprintf("Configuration error. Lunch penalty is negative: %f", configuration.Lunch_penalty)
+		panic(errorString)
 	}
 	if len(configuration.Preference_meal_IDs) < 0 || len(configuration.Preference_meal_IDs) > 7 {
-		fmt.Println("Configuration error: Preference_meal_IDs length is out of range")
-		return false
+		panic("Configuration error. Preference_meal_IDs length is out of range (0,7)")
 	}
 	if len(configuration.Preference_meal_days_of_week) < 0 || len(configuration.Preference_meal_days_of_week) > 7 {
-		fmt.Println("Configuration error: Preference_meal_days_of_week length is out of range")
-		return false
+		panic("Configuration error. Preference_meal_days_of_week length is out of range")
 	}
 	if len(configuration.Preference_meal_IDs) != len(configuration.Preference_meal_days_of_week) {
-		fmt.Println("Configuration error: Preference_meal_IDs length is different to Preference_meal_days_of_week")
-		return false
+		panic("Configuration error. Preference_meal_IDs length is different to Preference_meal_days_of_week")
 	}
-
-	return true
 }
 
 func GetMealCategories(meal_map map[int]database.Meal) []string {
