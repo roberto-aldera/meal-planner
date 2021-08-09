@@ -2,6 +2,7 @@ package utilities
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/roberto-aldera/meal-planner/database"
 )
@@ -105,6 +106,8 @@ func GetMealCategories(meal_map map[int]database.Meal) []string {
 			categories = append(categories, meal.Category)
 		}
 	}
+	// sort categories to ensure order is always the same (iterating over map is non-deterministic)
+	sort.Strings(categories)
 	return categories
 }
 
