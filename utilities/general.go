@@ -15,6 +15,7 @@ type Config struct {
 	Lunch_penalty                float64
 	Preference_meal_IDs          []int
 	Preference_meal_days_of_week []int
+	Previous_meals_to_exclude    []int
 	Special_exclusions           []int
 }
 

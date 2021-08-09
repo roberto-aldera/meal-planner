@@ -32,13 +32,14 @@ func MakeMealPlan() {
 	config.Lunch_penalty = 100
 	config.Preference_meal_IDs = []int{329, 412}
 	config.Preference_meal_days_of_week = []int{0, 3}
+	config.Previous_meals_to_exclude = []int{755, 105, 153, 224, 158}
 	config.Special_exclusions = []int{765}
 
 	if !utilities.ValidateConfiguration(config) {
 		fmt.Println("Configuration is invalid!")
 	}
-	meal_map = removeSpecialItems(meal_map, config.Special_exclusions)
 	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map, config)
+	meal_map = removeSpecialItems(meal_map, config.Special_exclusions, config.Previous_meals_to_exclude)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
 	utilities.PrintMealPlan(week_plan_with_requests)
@@ -132,8 +133,11 @@ func loadMealRequestsAndUpdateMap(meal_map map[int]database.Meal, config utiliti
 }
 
 // Remove meals that are to never be automatically included (like going out for dinner)
-func removeSpecialItems(meal_map map[int]database.Meal, exclusions []int) map[int]database.Meal {
-	for _, item := range exclusions {
+func removeSpecialItems(meal_map map[int]database.Meal, special_exclusions []int, previous_meals_to_exclude []int) map[int]database.Meal {
+	for _, item := range special_exclusions {
+		delete(meal_map, item)
+	}
+	for _, item := range previous_meals_to_exclude {
 		delete(meal_map, item)
 	}
 	return meal_map
