@@ -2,6 +2,7 @@ package strategy
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -12,6 +13,10 @@ import (
 )
 
 func MakeMealPlan() {
+
+	config_file_path := flag.String("config", "", "Path to configuration file")
+	flag.Parse()
+
 	log.Println("Running policy...")
 
 	// Load meals from database and print out all candidates
@@ -23,7 +28,7 @@ func MakeMealPlan() {
 	categories := utilities.GetMealCategories(meal_map)
 	utilities.PrintMealDatabaseWithCategories(all_meals_from_database, categories)
 
-	config := utilities.LoadConfiguration("meal_planner_config.json")
+	config := utilities.LoadConfiguration(*config_file_path)
 
 	if !utilities.ValidateConfiguration(config) {
 		fmt.Println("Configuration is invalid!")
