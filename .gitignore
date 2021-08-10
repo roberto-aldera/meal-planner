@@ -17,3 +17,6 @@
 # Database and other data-related files
 *.db
 *.csv
+
+# Local files
+localdata/*
