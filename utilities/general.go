@@ -37,14 +37,20 @@ func PrintMealDatabaseWithCategories(meal_database []database.Meal, categories [
 	fmt.Println("Meals available are:")
 	for _, category := range categories {
 		fmt.Println("\n------------------------------>", category)
-
 		for _, meal := range meal_database {
 			if meal.Category == category {
 				fmt.Println(meal.ID, "->", meal.Meal_name)
 			}
 		}
 	}
+	fmt.Println("\n--------------------------------------------------------------------------------")
+}
 
+func PrintExcludedMeals(meal_map map[int]database.Meal, previous_meals_to_exclude []int) {
+	fmt.Println("These meals have been requested to be excluded:")
+	for _, meal_ID := range previous_meals_to_exclude {
+		fmt.Println(meal_map[meal_ID].Meal_name, "->", meal_map[meal_ID].ID)
+	}
 }
 
 func PrintMealPlan(week_plan []database.Meal) {

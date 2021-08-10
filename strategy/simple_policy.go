@@ -33,7 +33,8 @@ func MakeMealPlan() {
 	utilities.ValidateConfiguration(config)
 
 	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map, config)
-	meal_map = removeSpecialItems(meal_map, config.Special_exclusions, config.Previous_meals_to_exclude)
+	utilities.PrintExcludedMeals(meal_map, config.Previous_meals_to_exclude)
+	meal_map = removeSpecificItems(meal_map, config.Special_exclusions, config.Previous_meals_to_exclude)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
 	utilities.PrintMealPlan(week_plan_with_requests)
@@ -126,13 +127,22 @@ func loadMealRequestsAndUpdateMap(meal_map map[int]database.Meal, config utiliti
 	return week_plan_with_requests, meal_map
 }
 
-// Remove meals that are to never be automatically included (like going out for dinner)
-func removeSpecialItems(meal_map map[int]database.Meal, special_exclusions []int, previous_meals_to_exclude []int) map[int]database.Meal {
+func removeSpecificItems(meal_map map[int]database.Meal, special_exclusions []int, previous_meals_to_exclude []int) map[int]database.Meal {
 	for _, item := range special_exclusions {
-		delete(meal_map, item)
+		_, key_is_valid := meal_map[item]
+		if key_is_valid {
+			delete(meal_map, item)
+		} else {
+			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
+		}
 	}
 	for _, item := range previous_meals_to_exclude {
-		delete(meal_map, item)
+		_, key_is_valid := meal_map[item]
+		if key_is_valid {
+			delete(meal_map, item)
+		} else {
+			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
+		}
 	}
 	return meal_map
 }
