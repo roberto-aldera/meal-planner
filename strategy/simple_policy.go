@@ -14,7 +14,7 @@ import (
 
 func MakeMealPlan() {
 
-	config_file_path := flag.String("config", "", "Path to configuration file")
+	configFilePath := flag.String("config", "", "Path to configuration file")
 	flag.Parse()
 
 	log.Println("Running policy...")
@@ -22,127 +22,126 @@ func MakeMealPlan() {
 	// Load meals from database and print out all candidates
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
 	defer sqliteDatabase.Close()
-	all_meals_from_database := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 
-	meal_map := makeMealMap(all_meals_from_database)
-	categories := utilities.GetMealCategories(meal_map)
-	utilities.PrintMealDatabaseWithCategories(all_meals_from_database, categories)
+	mealMap := makeMealMap(allMealsFromDatabase)
+	categories := utilities.GetMealCategories(mealMap)
+	utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 
-	config := utilities.LoadConfiguration(*config_file_path)
+	config := utilities.LoadConfiguration(*configFilePath)
 
 	utilities.ValidateConfiguration(config)
 
-	week_plan_with_requests, meal_map := loadMealRequestsAndUpdateMap(meal_map, config)
-	utilities.PrintExcludedMeals(meal_map, config.Previous_meals_to_exclude)
-	meal_map = removeSpecificItems(meal_map, config.Special_exclusions, config.Previous_meals_to_exclude)
+	weekPlanWithRequests, mealMap := loadMealRequestsAndUpdateMap(mealMap, config)
+	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
+	mealMap = removeSpecificItems(mealMap, config.SpecialExclusions, config.PreviousMealsToExclude)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
-	utilities.PrintMealPlan(week_plan_with_requests)
+	utilities.PrintMealPlan(weekPlanWithRequests)
 	fmt.Println("--------------------------------------------------------------------------------")
 
-	best_score := config.Minimum_score // lower is better
-	best_meal_plan := make([]database.Meal, len(week_plan_with_requests))
+	bestScore := config.MinimumScore // lower is better
+	bestMealPlan := make([]database.Meal, len(weekPlanWithRequests))
 	// rand.Seed(1624728791619452000) // hardcoded for easier debugging
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	for i := 0; i < config.Number_of_iterations; i++ {
-		week_plan := pickRandomMealsWithMap(meal_map, week_plan_with_requests, config)
-		meal_plan_score := utilities.CalculateScore(week_plan, config)
-		if meal_plan_score < best_score {
-			// fmt.Println("New high score:", meal_plan_score, "idx = ", i)
-			best_meal_plan = week_plan
-			best_score = meal_plan_score
+	for i := 0; i < config.NumberOfIterations; i++ {
+		weekPlan := pickRandomMealsWithMap(mealMap, weekPlanWithRequests, config)
+		mealPlanScore := utilities.CalculateScore(weekPlan, config)
+		if mealPlanScore < bestScore {
+			bestMealPlan = weekPlan
+			bestScore = mealPlanScore
 		}
 	}
 
-	if len(best_meal_plan) == 7 {
-		fmt.Println("Best meal plan after", config.Number_of_iterations, "iterations from a total of", len(all_meals_from_database), "meals:")
-		utilities.PrintMealPlan(best_meal_plan)
-		fmt.Println("Score:", best_score)
+	if len(bestMealPlan) == 7 {
+		fmt.Println("Best meal plan after", config.NumberOfIterations, "iterations from a total of", len(allMealsFromDatabase), "meals:")
+		utilities.PrintMealPlan(bestMealPlan)
+		fmt.Println("Score:", bestScore)
 	} else {
 		fmt.Println("No valid meal plan was possible with the provided requirements.")
 	}
 }
 
-func pickRandomMealsWithMap(meal_map map[int]database.Meal, week_plan_with_requests []database.Meal, config utilities.Config) []database.Meal {
+func pickRandomMealsWithMap(mealMap map[int]database.Meal, weekPlanWithRequests []database.Meal, config utilities.Config) []database.Meal {
 	// Store map keys in a slice, and get N random items from this slice to use in the plan (to avoid picking duplicates)
-	slice_of_keys := make([]int, 0)
-	for key := range meal_map {
-		slice_of_keys = append(slice_of_keys, key)
+	sliceOfKeys := make([]int, 0)
+	for key := range mealMap {
+		sliceOfKeys = append(sliceOfKeys, key)
 	}
 
 	// Get random subset of meals to store
-	random_indices := rand.Perm(len(meal_map))
-	key_subset := make([]int, 0)
-	for i := 0; i < len(week_plan_with_requests); i++ {
-		key_subset = append(key_subset, slice_of_keys[random_indices[i]])
+	randomIndices := rand.Perm(len(mealMap))
+	keySubset := make([]int, 0)
+	for i := 0; i < len(weekPlanWithRequests); i++ {
+		keySubset = append(keySubset, sliceOfKeys[randomIndices[i]])
 	}
 
 	// Insert stored meals into week plan
-	week_plan := make([]database.Meal, len(week_plan_with_requests))
-	copy(week_plan, week_plan_with_requests)
-	for idx := 0; idx < len(week_plan); idx++ {
-		if week_plan[idx].ID == 0 { // indicates an empty slot in the week plan that can be filled
-			meal_under_test := meal_map[key_subset[idx]] // get a proposed meal
-			week_plan[idx] = meal_under_test
+	weekPlan := make([]database.Meal, len(weekPlanWithRequests))
+	copy(weekPlan, weekPlanWithRequests)
+	for idx := 0; idx < len(weekPlan); idx++ {
+		if weekPlan[idx].ID == 0 { // indicates an empty slot in the week plan that can be filled
+			mealUnderTest := mealMap[keySubset[idx]] // get a proposed meal
+			weekPlan[idx] = mealUnderTest
 		}
 	}
 
 	// Debug: check for duplicates
-	tmp_week_plan := make([]database.Meal, len(week_plan))
-	copy(tmp_week_plan, week_plan)
+	tmpWeekPlan := make([]database.Meal, len(weekPlan))
+	copy(tmpWeekPlan, weekPlan)
 	visited := make(map[string]bool)
-	for i := 0; i < len(tmp_week_plan); i++ {
-		if visited[tmp_week_plan[i].Meal_name] {
-			fmt.Println("*** Duplicate found:", tmp_week_plan[i].Meal_name)
+	for i := 0; i < len(tmpWeekPlan); i++ {
+		if visited[tmpWeekPlan[i].MealName] {
+			fmt.Println("*** Duplicate found:", tmpWeekPlan[i].MealName)
 		} else {
-			visited[tmp_week_plan[i].Meal_name] = true
+			visited[tmpWeekPlan[i].MealName] = true
 		}
 	}
 
-	return week_plan
+	return weekPlan
 }
 
-func makeMealMap(all_meals_from_database []database.Meal) map[int]database.Meal {
-	meal_map := make(map[int]database.Meal)
-	for i := 0; i < len(all_meals_from_database); i++ {
-		meal_map[all_meals_from_database[i].ID] = all_meals_from_database[i]
+func makeMealMap(allMealsFromDatabase []database.Meal) map[int]database.Meal {
+	mealMap := make(map[int]database.Meal)
+	for i := 0; i < len(allMealsFromDatabase); i++ {
+		mealMap[allMealsFromDatabase[i].ID] = allMealsFromDatabase[i]
 	}
-	return meal_map
+	return mealMap
 }
 
 // Return a slice that is partially filled by the requests
 // Possibly also edit the meal map here, to delete reuqested meals as viable options?
 // Maybe that's better in another function that is called just after this one.
-func loadMealRequestsAndUpdateMap(meal_map map[int]database.Meal, config utilities.Config) ([]database.Meal, map[int]database.Meal) {
-	week_plan_with_requests := make([]database.Meal, 7)
+func loadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config utilities.Config) ([]database.Meal, map[int]database.Meal) {
+	weekPlanWithRequests := make([]database.Meal, 7)
 
 	// Quick check that the inputs are legal, which really should be done in a config validation somewhere...
-	if len(config.Preference_meal_IDs) == len(config.Preference_meal_days_of_week) {
-		for idx, week_day := range config.Preference_meal_days_of_week {
-			week_plan_with_requests[week_day] = meal_map[config.Preference_meal_IDs[idx]]
-			delete(meal_map, config.Preference_meal_IDs[idx])
+	if len(config.PreferenceMealIDs) == len(config.PreferenceMealDaysOfWeek) {
+		for idx, weekDay := range config.PreferenceMealDaysOfWeek {
+			weekPlanWithRequests[weekDay] = mealMap[config.PreferenceMealIDs[idx]]
+			delete(mealMap, config.PreferenceMealIDs[idx])
 		}
 	}
-	return week_plan_with_requests, meal_map
+	return weekPlanWithRequests, mealMap
 }
 
-func removeSpecificItems(meal_map map[int]database.Meal, special_exclusions []int, previous_meals_to_exclude []int) map[int]database.Meal {
-	for _, item := range special_exclusions {
-		_, key_is_valid := meal_map[item]
-		if key_is_valid {
-			delete(meal_map, item)
+func removeSpecificItems(mealMap map[int]database.Meal, specialExclusions []int, previousMealsToExclude []int) map[int]database.Meal {
+	for _, item := range specialExclusions {
+		_, keyIsValid := mealMap[item]
+		if keyIsValid {
+			delete(mealMap, item)
 		} else {
 			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
 		}
 	}
-	for _, item := range previous_meals_to_exclude {
-		_, key_is_valid := meal_map[item]
-		if key_is_valid {
-			delete(meal_map, item)
+	for _, item := range previousMealsToExclude {
+		_, keyIsValid := mealMap[item]
+		if keyIsValid {
+			delete(mealMap, item)
 		} else {
 			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
 		}
 	}
-	return meal_map
+	return mealMap
 }

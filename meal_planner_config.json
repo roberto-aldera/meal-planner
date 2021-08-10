@@ -1,6 +1,6 @@
 {
-    "Number_of_iterations": 100000,
-    "Day_weights": [
+    "NumberOfIterations": 100000,
+    "DayWeights": [
         1,
         1,
         30,
@@ -9,25 +9,25 @@
         -10,
         30
     ],
-    "Minimum_score": 10000,
-    "Duplicate_penalty": 100,
-    "Lunch_penalty": 100,
-    "Preference_meal_IDs": [
+    "MinimumScore": 10000,
+    "DuplicatePenalty": 100,
+    "LunchPenalty": 100,
+    "PreferenceMealIDs": [
         329,
         412
     ],
-    "Preference_meal_days_of_week": [
+    "PreferenceMealDaysOfWeek": [
         0,
         3
     ],
-    "Previous_meals_to_exclude": [
+    "PreviousMealsToExclude": [
         755,
         105,
         153,
         224,
         158
     ],
-    "Special_exclusions": [
+    "SpecialExclusions": [
         765
     ]
 }

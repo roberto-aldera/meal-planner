@@ -10,115 +10,110 @@ import (
 )
 
 type Config struct {
-	Number_of_iterations         int
-	Day_weights                  [7]float64
-	Minimum_score                float64
-	Duplicate_penalty            float64
-	Lunch_penalty                float64
-	Preference_meal_IDs          []int
-	Preference_meal_days_of_week []int
-	Previous_meals_to_exclude    []int
-	Special_exclusions           []int
+	NumberOfIterations       int
+	DayWeights               [7]float64
+	MinimumScore             float64
+	DuplicatePenalty         float64
+	LunchPenalty             float64
+	PreferenceMealIDs        []int
+	PreferenceMealDaysOfWeek []int
+	PreviousMealsToExclude   []int
+	SpecialExclusions        []int
 }
 
-type Specific_meal struct {
-	Meal_ID_idx int
-	Day_of_week int
-}
-
-func PrintMealDatabase(meal_database []database.Meal) {
+func PrintMealDatabase(mealDatabase []database.Meal) {
 	fmt.Println("Meals available are:")
-	for _, meal := range meal_database {
-		fmt.Println(meal.ID, "->", meal.Meal_name)
+	for _, meal := range mealDatabase {
+		fmt.Println(meal.ID, "->", meal.MealName)
 	}
 }
 
-func PrintMealDatabaseWithCategories(meal_database []database.Meal, categories []string) {
+func PrintMealDatabaseWithCategories(mealDatabase []database.Meal, categories []string) {
 	fmt.Println("Meals available are:")
 	for _, category := range categories {
 		fmt.Println("\n------------------------------>", category)
-		for _, meal := range meal_database {
+		for _, meal := range mealDatabase {
 			if meal.Category == category {
-				fmt.Println(meal.ID, "->", meal.Meal_name)
+				fmt.Println(meal.ID, "->", meal.MealName)
 			}
 		}
 	}
 	fmt.Println("\n--------------------------------------------------------------------------------")
 }
 
-func PrintExcludedMeals(meal_map map[int]database.Meal, previous_meals_to_exclude []int) {
+func PrintExcludedMeals(mealMap map[int]database.Meal, previousMealsToExclude []int) {
 	fmt.Println("These meals have been requested to be excluded:")
-	for _, meal_ID := range previous_meals_to_exclude {
-		fmt.Println(meal_map[meal_ID].Meal_name, "->", meal_map[meal_ID].ID)
+	for _, mealID := range previousMealsToExclude {
+		fmt.Println(mealMap[mealID].MealName, "->", mealMap[mealID].ID)
 	}
 }
 
-func PrintMealPlan(week_plan []database.Meal) {
-	if len(week_plan) == 7 {
-		fmt.Println("Monday:   ", week_plan[0].Meal_name)
-		fmt.Println("Tuesday:  ", week_plan[1].Meal_name)
-		fmt.Println("Wednesday:", week_plan[2].Meal_name)
-		fmt.Println("Thursday: ", week_plan[3].Meal_name)
-		fmt.Println("Friday:   ", week_plan[4].Meal_name)
-		fmt.Println("Saturday: ", week_plan[5].Meal_name)
-		fmt.Println("Sunday:   ", week_plan[6].Meal_name)
+func PrintMealPlan(weekPlan []database.Meal) {
+	if len(weekPlan) == 7 {
+		fmt.Println("Monday:   ", weekPlan[0].MealName)
+		fmt.Println("Tuesday:  ", weekPlan[1].MealName)
+		fmt.Println("Wednesday:", weekPlan[2].MealName)
+		fmt.Println("Thursday: ", weekPlan[3].MealName)
+		fmt.Println("Friday:   ", weekPlan[4].MealName)
+		fmt.Println("Saturday: ", weekPlan[5].MealName)
+		fmt.Println("Sunday:   ", weekPlan[6].MealName)
 	} else {
 		fmt.Println("Meal plan not complete.")
 	}
 }
 
-func LoadConfiguration(config_file_path string) Config {
+func LoadConfiguration(configFilePath string) Config {
 	var configuration Config
-	file, read_err := os.Open(config_file_path)
-	if read_err != nil {
-		fmt.Println(read_err.Error())
+	file, readErr := os.Open(configFilePath)
+	if readErr != nil {
+		fmt.Println(readErr.Error())
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	decoder_err := decoder.Decode(&configuration)
-	if decoder_err != nil {
-		fmt.Println("error:", decoder_err)
+	decoderErr := decoder.Decode(&configuration)
+	if decoderErr != nil {
+		fmt.Println("error:", decoderErr)
 	}
 	return configuration
 }
 
 func ValidateConfiguration(configuration Config) {
-	if configuration.Number_of_iterations < 1 || configuration.Number_of_iterations > 1000000 {
-		errorString := fmt.Sprintf("Configuration error. Number of iterations is is outside of range: %d", configuration.Number_of_iterations)
+	if configuration.NumberOfIterations < 1 || configuration.NumberOfIterations > 1000000 {
+		errorString := fmt.Sprintf("Configuration error. Number of iterations is is outside of range: %d", configuration.NumberOfIterations)
 		panic(errorString)
 	}
-	for _, weight := range configuration.Day_weights {
+	for _, weight := range configuration.DayWeights {
 		if weight < -100 || weight > 100 {
 			errorString := fmt.Sprintf("Configuration error. Day weight is unreasonable: %f", weight)
 			panic(errorString)
 		}
 	}
-	if configuration.Minimum_score < 0 {
-		errorString := fmt.Sprintf("Configuration error. Minimum score is negative: %f", configuration.Minimum_score)
+	if configuration.MinimumScore < 0 {
+		errorString := fmt.Sprintf("Configuration error. Minimum score is negative: %f", configuration.MinimumScore)
 		panic(errorString)
 	}
-	if configuration.Duplicate_penalty < 0 {
-		errorString := fmt.Sprintf("Configuration error. Duplicate penalty is negative: %f", configuration.Duplicate_penalty)
+	if configuration.DuplicatePenalty < 0 {
+		errorString := fmt.Sprintf("Configuration error. Duplicate penalty is negative: %f", configuration.DuplicatePenalty)
 		panic(errorString)
 	}
-	if configuration.Lunch_penalty < 0 {
-		errorString := fmt.Sprintf("Configuration error. Lunch penalty is negative: %f", configuration.Lunch_penalty)
+	if configuration.LunchPenalty < 0 {
+		errorString := fmt.Sprintf("Configuration error. Lunch penalty is negative: %f", configuration.LunchPenalty)
 		panic(errorString)
 	}
-	if len(configuration.Preference_meal_IDs) < 0 || len(configuration.Preference_meal_IDs) > 7 {
-		panic("Configuration error. Preference_meal_IDs length is out of range (0,7)")
+	if len(configuration.PreferenceMealIDs) < 0 || len(configuration.PreferenceMealIDs) > 7 {
+		panic("Configuration error. PreferenceMealIDs length is out of range (0,7)")
 	}
-	if len(configuration.Preference_meal_days_of_week) < 0 || len(configuration.Preference_meal_days_of_week) > 7 {
-		panic("Configuration error. Preference_meal_days_of_week length is out of range")
+	if len(configuration.PreferenceMealDaysOfWeek) < 0 || len(configuration.PreferenceMealDaysOfWeek) > 7 {
+		panic("Configuration error. PreferenceMealDaysOfWeek length is out of range")
 	}
-	if len(configuration.Preference_meal_IDs) != len(configuration.Preference_meal_days_of_week) {
-		panic("Configuration error. Preference_meal_IDs length is different to Preference_meal_days_of_week")
+	if len(configuration.PreferenceMealIDs) != len(configuration.PreferenceMealDaysOfWeek) {
+		panic("Configuration error. PreferenceMealIDs length is different to PreferenceMealDaysOfWeek")
 	}
 }
 
-func GetMealCategories(meal_map map[int]database.Meal) []string {
+func GetMealCategories(mealMap map[int]database.Meal) []string {
 	categories := make([]string, 0)
-	for _, meal := range meal_map {
+	for _, meal := range mealMap {
 		if !IsInSlice(categories, meal.Category) {
 			categories = append(categories, meal.Category)
 		}

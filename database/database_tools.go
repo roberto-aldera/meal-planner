@@ -19,23 +19,23 @@ func RunMe() {
 }
 
 type Meal struct {
-	ID           int
-	Meal_name    string
-	Cooking_time float32
-	Category     string
-	Lunch_only   bool
+	ID          int
+	MealName    string
+	CookingTime float32
+	Category    string
+	LunchOnly   bool
 }
 
 func countNumberOfRows(db *sql.DB) int {
-	var num_rows int
-	err := db.QueryRow("SELECT COUNT(*) FROM meals").Scan(&num_rows)
+	var numRows int
+	err := db.QueryRow("SELECT COUNT(*) FROM meals").Scan(&numRows)
 	switch {
 	case err != nil:
 		log.Fatal(err)
 	default:
-		// log.Printf("Number of rows are %d\n", num_rows)
+		// log.Printf("Number of rows are %d\n", numRows)
 	}
-	return num_rows
+	return numRows
 }
 
 func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
@@ -44,30 +44,30 @@ func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 		log.Fatal(err)
 	}
 	defer row.Close()
-	num_rows := countNumberOfRows(db)
-	var all_meals = make([]Meal, num_rows)
+	numRows := countNumberOfRows(db)
+	var allMeals = make([]Meal, numRows)
 	i := 0
 	for row.Next() {
 		var meal Meal
-		row.Scan(&meal.ID, &meal.Meal_name, &meal.Cooking_time, &meal.Category, &meal.Lunch_only)
-		all_meals[i] = meal
+		row.Scan(&meal.ID, &meal.MealName, &meal.CookingTime, &meal.Category, &meal.LunchOnly)
+		allMeals[i] = meal
 		i++
 	}
-	return all_meals
+	return allMeals
 }
 
 func displayEntries(db *sql.DB) {
-	all_meals := LoadDatabaseEntriesIntoContainer(db)
-	log.Println(all_meals)
+	allMeals := LoadDatabaseEntriesIntoContainer(db)
+	log.Println(allMeals)
 }
 
 // Generate 3-digit unique IDs for each meal to be used to keep track of them in the database
 func GenerateDeterministicMealIDs() {
 	rand.Seed(42)
-	num_IDs := 899
-	all_IDs := rand.Perm(num_IDs)
-	for idx := range all_IDs {
-		all_IDs[idx] += 100
+	numIDs := 899
+	allIDs := rand.Perm(numIDs)
+	for idx := range allIDs {
+		allIDs[idx] += 100
 	}
-	fmt.Println(all_IDs[0:65])
+	fmt.Println(allIDs[0:65])
 }
