@@ -42,9 +42,13 @@ func PrintMealDatabaseWithCategories(mealDatabase []database.Meal, categories []
 }
 
 func PrintExcludedMeals(mealMap map[int]database.Meal, previousMealsToExclude []int) {
-	fmt.Println("These meals have been requested to be excluded:")
-	for _, mealID := range previousMealsToExclude {
-		fmt.Println(mealMap[mealID].MealName, "->", mealMap[mealID].ID)
+	if (len(previousMealsToExclude)) > 0 {
+		fmt.Println("These meals have been requested to be excluded:")
+		for _, mealID := range previousMealsToExclude {
+			fmt.Println(mealMap[mealID].MealName, "->", mealMap[mealID].ID)
+		}
+	} else {
+		fmt.Println("No meals were requested to be excluded.")
 	}
 }
 

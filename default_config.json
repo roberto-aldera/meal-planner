@@ -1,0 +1,19 @@
+{
+    "NumberOfIterations": 100000,
+    "DayWeights": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        -1,
+        -1
+    ],
+    "MinimumScore": 10000,
+    "DuplicatePenalty": 100,
+    "LunchPenalty": 100,
+    "PreferenceMealIDs": [],
+    "PreferenceMealDaysOfWeek": [],
+    "PreviousMealsToExclude": [],
+    "SpecialExclusions": []
+}

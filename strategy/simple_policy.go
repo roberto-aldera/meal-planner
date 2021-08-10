@@ -33,7 +33,9 @@ func MakeMealPlan() {
 	utilities.ValidateConfiguration(config)
 
 	weekPlanWithRequests, mealMap := loadMealRequestsAndUpdateMap(mealMap, config)
+
 	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
+
 	mealMap = removeSpecificItems(mealMap, config.SpecialExclusions, config.PreviousMealsToExclude)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
