@@ -19,6 +19,7 @@ type Config struct {
 	PreferenceMealDaysOfWeek []int
 	PreviousMealsToExclude   []int
 	SpecialExclusions        []int
+	ExcludeSoups             bool
 }
 
 func PrintMealDatabase(mealDatabase []database.Meal) {

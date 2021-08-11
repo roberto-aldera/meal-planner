@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log"
+	"log" //remove this?
 	"math/rand"
 	"time"
+
+	"github.com/golang/glog"
 
 	"github.com/roberto-aldera/meal-planner/database"
 	"github.com/roberto-aldera/meal-planner/utilities"
@@ -33,10 +35,14 @@ func MakeMealPlan() {
 	utilities.ValidateConfiguration(config)
 
 	weekPlanWithRequests, mealMap := loadMealRequestsAndUpdateMap(mealMap, config)
-
 	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
+	mealMap = removeSpecificMeals(mealMap, config.SpecialExclusions)
+	mealMap = removeSpecificMeals(mealMap, config.PreviousMealsToExclude)
+	if config.ExcludeSoups {
+		soups := getMealsInCategory("Soups", mealMap)
+		mealMap = removeSpecificMeals(mealMap, soups)
+	}
 
-	mealMap = removeSpecificItems(mealMap, config.SpecialExclusions, config.PreviousMealsToExclude)
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
 	utilities.PrintMealPlan(weekPlanWithRequests)
@@ -128,22 +134,27 @@ func loadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config utilitie
 	return weekPlanWithRequests, mealMap
 }
 
-func removeSpecificItems(mealMap map[int]database.Meal, specialExclusions []int, previousMealsToExclude []int) map[int]database.Meal {
-	for _, item := range specialExclusions {
+func removeSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) map[int]database.Meal {
+	for _, item := range mealsToExclude {
 		_, keyIsValid := mealMap[item]
 		if keyIsValid {
-			delete(mealMap, item)
-		} else {
-			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
-		}
-	}
-	for _, item := range previousMealsToExclude {
-		_, keyIsValid := mealMap[item]
-		if keyIsValid {
+			glog.Info("Removing ", mealMap[item].MealName)
 			delete(mealMap, item)
 		} else {
 			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
 		}
 	}
 	return mealMap
+}
+
+func getMealsInCategory(category string, mealMap map[int]database.Meal) []int {
+	// TODO: validate that category is correct (it must exist)
+	mealsInCategory := make([]int, 0)
+	for _, meal := range mealMap {
+		if meal.Category == category {
+			mealsInCategory = append(mealsInCategory, meal.ID)
+		}
+	}
+	return mealsInCategory
+
 }

@@ -15,5 +15,6 @@
     "PreferenceMealIDs": [],
     "PreferenceMealDaysOfWeek": [],
     "PreviousMealsToExclude": [],
-    "SpecialExclusions": []
+    "SpecialExclusions": [],
+    "ExcludeSoups": false
 }
