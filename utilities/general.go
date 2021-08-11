@@ -14,11 +14,11 @@ type Config struct {
 	DayWeights               [7]float64
 	MinimumScore             float64
 	DuplicatePenalty         float64
-	LunchPenalty             float64
 	PreferenceMealIDs        []int
 	PreferenceMealDaysOfWeek []int
 	PreviousMealsToExclude   []int
 	SpecialExclusions        []int
+	ExcludeLunches           bool
 	ExcludeSoups             bool
 }
 
@@ -99,10 +99,6 @@ func ValidateConfiguration(configuration Config) {
 	}
 	if configuration.DuplicatePenalty < 0 {
 		errorString := fmt.Sprintf("Configuration error. Duplicate penalty is negative: %f", configuration.DuplicatePenalty)
-		panic(errorString)
-	}
-	if configuration.LunchPenalty < 0 {
-		errorString := fmt.Sprintf("Configuration error. Lunch penalty is negative: %f", configuration.LunchPenalty)
 		panic(errorString)
 	}
 	if len(configuration.PreferenceMealIDs) < 0 || len(configuration.PreferenceMealIDs) > 7 {

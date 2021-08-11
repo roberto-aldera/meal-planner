@@ -11,10 +11,10 @@
     ],
     "MinimumScore": 10000,
     "DuplicatePenalty": 100,
-    "LunchPenalty": 100,
     "PreferenceMealIDs": [],
     "PreferenceMealDaysOfWeek": [],
     "PreviousMealsToExclude": [],
     "SpecialExclusions": [],
+    "ExcludeLunches": true,
     "ExcludeSoups": false
 }

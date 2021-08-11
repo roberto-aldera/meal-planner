@@ -12,7 +12,6 @@ func CalculateScore(weekPlan []database.Meal, config Config) float64 {
 	cookingTimeScore := 0.0
 	duplicateScore := 0.0
 	finalMealPlanScore := 0.0
-	lunchOnlyScore := 0.0
 
 	// Score for cooking times on days according to penalties
 	for i := 0; i < len(weekPlan); i++ {
@@ -31,13 +30,6 @@ func CalculateScore(weekPlan []database.Meal, config Config) float64 {
 		}
 	}
 
-	// Penalise using lunch-only options for now
-	for i := 0; i < len(weekPlan); i++ {
-		if weekPlan[i].LunchOnly {
-			lunchOnlyScore += config.LunchPenalty
-		}
-	}
-
-	finalMealPlanScore = cookingTimeScore + duplicateScore + lunchOnlyScore
+	finalMealPlanScore = cookingTimeScore + duplicateScore
 	return finalMealPlanScore
 }

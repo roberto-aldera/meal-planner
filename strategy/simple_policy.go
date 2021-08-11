@@ -41,6 +41,10 @@ func MakeMealPlan() {
 		soups := getMealsInCategory("Soups", mealMap)
 		mealMap = removeSpecificMeals(mealMap, soups)
 	}
+	if config.ExcludeLunches {
+		lunches := getLunchMeals(config.ExcludeLunches, mealMap)
+		mealMap = removeSpecificMeals(mealMap, lunches)
+	}
 
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
@@ -155,5 +159,15 @@ func getMealsInCategory(category string, mealMap map[int]database.Meal) []int {
 		}
 	}
 	return mealsInCategory
+}
+
+func getLunchMeals(is_lunch bool, mealMap map[int]database.Meal) []int {
+	lunchMeals := make([]int, 0)
+	for _, meal := range mealMap {
+		if meal.LunchOnly == true {
+			lunchMeals = append(lunchMeals, meal.ID)
+		}
+	}
+	return lunchMeals
 
 }
