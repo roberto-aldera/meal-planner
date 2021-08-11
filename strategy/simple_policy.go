@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log" //remove this?
 	"math/rand"
 	"time"
 
@@ -19,7 +18,7 @@ func MakeMealPlan() {
 	configFilePath := flag.String("config", "", "Path to configuration file")
 	flag.Parse()
 
-	log.Println("Running policy...")
+	fmt.Println("Running policy...")
 
 	// Load meals from database and print out all candidates
 	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
