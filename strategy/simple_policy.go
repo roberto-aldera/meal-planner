@@ -7,8 +7,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/golang/glog"
-
 	"github.com/roberto-aldera/meal-planner/database"
 	"github.com/roberto-aldera/meal-planner/utilities"
 )
@@ -25,7 +23,7 @@ func MakeMealPlan() {
 	defer sqliteDatabase.Close()
 	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 
-	mealMap := makeMealMap(allMealsFromDatabase)
+	mealMap := utilities.MakeMealMap(allMealsFromDatabase)
 	categories := utilities.GetMealCategories(mealMap)
 	utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 
@@ -33,17 +31,17 @@ func MakeMealPlan() {
 
 	utilities.ValidateConfiguration(config)
 
-	weekPlanWithRequests, mealMap := loadMealRequestsAndUpdateMap(mealMap, config)
+	weekPlanWithRequests, mealMap := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
 	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
-	mealMap = removeSpecificMeals(mealMap, config.SpecialExclusions)
-	mealMap = removeSpecificMeals(mealMap, config.PreviousMealsToExclude)
+	mealMap = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
+	mealMap = utilities.RemoveSpecificMeals(mealMap, config.PreviousMealsToExclude)
 	if config.ExcludeSoups {
-		soups := getMealsInCategory("Soups", mealMap)
-		mealMap = removeSpecificMeals(mealMap, soups)
+		soups := utilities.GetMealsInCategory("Soups", mealMap)
+		mealMap = utilities.RemoveSpecificMeals(mealMap, soups)
 	}
 	if config.ExcludeLunches {
-		lunches := getLunchMeals(config.ExcludeLunches, mealMap)
-		mealMap = removeSpecificMeals(mealMap, lunches)
+		lunches := utilities.GetLunchMeals(config.ExcludeLunches, mealMap)
+		mealMap = utilities.RemoveSpecificMeals(mealMap, lunches)
 	}
 
 	fmt.Println("--------------------------------------------------------------------------------")
@@ -111,63 +109,4 @@ func pickRandomMealsWithMap(mealMap map[int]database.Meal, weekPlanWithRequests 
 	}
 
 	return weekPlan
-}
-
-func makeMealMap(allMealsFromDatabase []database.Meal) map[int]database.Meal {
-	mealMap := make(map[int]database.Meal)
-	for i := 0; i < len(allMealsFromDatabase); i++ {
-		mealMap[allMealsFromDatabase[i].ID] = allMealsFromDatabase[i]
-	}
-	return mealMap
-}
-
-// Return a slice that is partially filled by the requests
-// Possibly also edit the meal map here, to delete reuqested meals as viable options?
-// Maybe that's better in another function that is called just after this one.
-func loadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config utilities.Config) ([]database.Meal, map[int]database.Meal) {
-	weekPlanWithRequests := make([]database.Meal, 7)
-
-	// Quick check that the inputs are legal, which really should be done in a config validation somewhere...
-	if len(config.PreferenceMealIDs) == len(config.PreferenceMealDaysOfWeek) {
-		for idx, weekDay := range config.PreferenceMealDaysOfWeek {
-			weekPlanWithRequests[weekDay] = mealMap[config.PreferenceMealIDs[idx]]
-			delete(mealMap, config.PreferenceMealIDs[idx])
-		}
-	}
-	return weekPlanWithRequests, mealMap
-}
-
-func removeSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) map[int]database.Meal {
-	for _, item := range mealsToExclude {
-		_, keyIsValid := mealMap[item]
-		if keyIsValid {
-			glog.Info("Removing ", mealMap[item].MealName)
-			delete(mealMap, item)
-		} else {
-			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
-		}
-	}
-	return mealMap
-}
-
-func getMealsInCategory(category string, mealMap map[int]database.Meal) []int {
-	// TODO: validate that category is correct (it must exist)
-	mealsInCategory := make([]int, 0)
-	for _, meal := range mealMap {
-		if meal.Category == category {
-			mealsInCategory = append(mealsInCategory, meal.ID)
-		}
-	}
-	return mealsInCategory
-}
-
-func getLunchMeals(is_lunch bool, mealMap map[int]database.Meal) []int {
-	lunchMeals := make([]int, 0)
-	for _, meal := range mealMap {
-		if meal.LunchOnly == true {
-			lunchMeals = append(lunchMeals, meal.ID)
-		}
-	}
-	return lunchMeals
-
 }
