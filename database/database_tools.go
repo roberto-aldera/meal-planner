@@ -21,7 +21,7 @@ func RunMe() {
 type Meal struct {
 	ID          int
 	MealName    string
-	CookingTime float32
+	CookingTime float64
 	Category    string
 	LunchOnly   bool
 }

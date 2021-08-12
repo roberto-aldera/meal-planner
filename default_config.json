@@ -11,6 +11,7 @@
     ],
     "MinimumScore": 10000,
     "DuplicatePenalty": 100,
+    "DefinitionOfLongMealPrepTimeHours": 1.5,
     "PreferenceMealIDs": [],
     "PreferenceMealDaysOfWeek": [],
     "PreviousMealsToExclude": [],

@@ -15,7 +15,9 @@ func CalculateScore(weekPlan []database.Meal, config Config) float64 {
 
 	// Score for cooking times on days according to penalties
 	for i := 0; i < len(weekPlan); i++ {
-		cookingTimeScore += float64(weekPlan[i].CookingTime) * config.DayWeights[i]
+		if weekPlan[i].CookingTime > config.DefinitionOfLongMealPrepTimeHours {
+			cookingTimeScore += float64(weekPlan[i].CookingTime) * config.DayWeights[i]
+		}
 	}
 
 	// Penalise duplicate categories within the same week

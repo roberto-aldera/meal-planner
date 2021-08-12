@@ -7,16 +7,17 @@ import (
 )
 
 type Config struct {
-	NumberOfIterations       int
-	DayWeights               [7]float64
-	MinimumScore             float64
-	DuplicatePenalty         float64
-	PreferenceMealIDs        []int
-	PreferenceMealDaysOfWeek []int
-	PreviousMealsToExclude   []int
-	SpecialExclusions        []int
-	ExcludeLunches           bool
-	ExcludeSoups             bool
+	NumberOfIterations                int
+	DayWeights                        [7]float64
+	MinimumScore                      float64
+	DuplicatePenalty                  float64
+	DefinitionOfLongMealPrepTimeHours float64
+	PreferenceMealIDs                 []int
+	PreferenceMealDaysOfWeek          []int
+	PreviousMealsToExclude            []int
+	SpecialExclusions                 []int
+	ExcludeLunches                    bool
+	ExcludeSoups                      bool
 }
 
 func LoadConfiguration(configFilePath string) Config {
