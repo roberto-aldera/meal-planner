@@ -66,8 +66,11 @@ func GenerateDeterministicMealIDs() {
 	rand.Seed(42)
 	numIDs := 899
 	allIDs := rand.Perm(numIDs)
+	numToPrint := 70
 	for idx := range allIDs {
 		allIDs[idx] += 100
 	}
-	fmt.Println(allIDs[0:65])
+	for i := 0; i < numToPrint; i++ {
+		fmt.Println(i, "->", allIDs[i])
+	}
 }
