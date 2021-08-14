@@ -8,9 +8,10 @@ import (
 
 type Config struct {
 	NumberOfIterations                int
-	DayWeights                        [7]float64
+	ComplexMealRequested              []bool
+	SimpleMealRequested               []bool
 	MinimumScore                      float64
-	DuplicatePenalty                  float64
+	ScorePenalty                      float64
 	DefinitionOfLongMealPrepTimeHours float64
 	PreferenceMealIDs                 []int
 	PreferenceMealDaysOfWeek          []int
@@ -40,9 +41,16 @@ func ValidateConfiguration(configuration Config) {
 		errorString := fmt.Sprintf("Configuration error. Number of iterations is is outside of range: %d", configuration.NumberOfIterations)
 		panic(errorString)
 	}
-	for _, weight := range configuration.DayWeights {
-		if weight < -100 || weight > 100 {
-			errorString := fmt.Sprintf("Configuration error. Day weight is unreasonable: %f", weight)
+	fmt.Println(len(configuration.ComplexMealRequested), configuration.ComplexMealRequested)
+	if len(configuration.ComplexMealRequested) != 7 {
+		panic("Configuration error. ComplexMealRequested length must be 7.")
+	}
+	if len(configuration.SimpleMealRequested) != 7 {
+		panic("Configuration error. SimpleMealRequested length must be 7.")
+	}
+	for idx := range configuration.ComplexMealRequested {
+		if configuration.ComplexMealRequested[idx] && configuration.SimpleMealRequested[idx] {
+			errorString := fmt.Sprintf("Configuration error. Cannot request both complex and simple meal on the same day for index = %d", idx)
 			panic(errorString)
 		}
 	}
@@ -50,8 +58,8 @@ func ValidateConfiguration(configuration Config) {
 		errorString := fmt.Sprintf("Configuration error. Minimum score is negative: %f", configuration.MinimumScore)
 		panic(errorString)
 	}
-	if configuration.DuplicatePenalty < 0 {
-		errorString := fmt.Sprintf("Configuration error. Duplicate penalty is negative: %f", configuration.DuplicatePenalty)
+	if configuration.ScorePenalty < 0 {
+		errorString := fmt.Sprintf("Configuration error. Duplicate penalty is negative: %f", configuration.ScorePenalty)
 		panic(errorString)
 	}
 	if len(configuration.PreferenceMealIDs) < 0 || len(configuration.PreferenceMealIDs) > 7 {

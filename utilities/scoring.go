@@ -8,15 +8,24 @@ import (
 // So tally things like cooking time, frequencies of dishes,
 // complex things during the week, etc. and then score accordingly
 func CalculateScore(weekPlan []database.Meal, config Config) float64 {
-	// Higher numbers correspond to days where there is less time to cook
-	cookingTimeScore := 0.0
-	duplicateScore := 0.0
-	finalMealPlanScore := 0.0
+	mealPlanScore := 0.0
 
-	// Score for cooking times on days according to penalties
+	// Score for meal complexity and cooking times for specified days
 	for i := 0; i < len(weekPlan); i++ {
-		if weekPlan[i].CookingTime > config.DefinitionOfLongMealPrepTimeHours {
-			cookingTimeScore += float64(weekPlan[i].CookingTime) * config.DayWeights[i]
+		// Meals that take longer to cook (are "complex") should be cooked on requested days
+		// This penalises them being suggested when they weren't requested, and also penalises
+		// them not being suggested when they were requested
+		if config.ComplexMealRequested[i] && weekPlan[i].CookingTime < config.DefinitionOfLongMealPrepTimeHours {
+			mealPlanScore += config.ScorePenalty
+		} else if !config.ComplexMealRequested[i] && weekPlan[i].CookingTime > config.DefinitionOfLongMealPrepTimeHours {
+			mealPlanScore += config.ScorePenalty
+		}
+		// Encourage "simple/quick" (user-defined in the database) meals on the requested days
+		// And then also penalise days where a simple meal was not requested but was suggested
+		if config.SimpleMealRequested[i] && !weekPlan[i].IsQuick {
+			mealPlanScore += config.ScorePenalty
+		} else if !config.SimpleMealRequested[i] && weekPlan[i].IsQuick {
+			mealPlanScore += config.ScorePenalty
 		}
 	}
 
@@ -26,12 +35,11 @@ func CalculateScore(weekPlan []database.Meal, config Config) float64 {
 	visited := make(map[string]bool)
 	for i := 0; i < len(tmpWeekPlan); i++ {
 		if visited[tmpWeekPlan[i].Category] {
-			duplicateScore += config.DuplicatePenalty
+			mealPlanScore += config.ScorePenalty
 		} else {
 			visited[tmpWeekPlan[i].Category] = true
 		}
 	}
 
-	finalMealPlanScore = cookingTimeScore + duplicateScore
-	return finalMealPlanScore
+	return mealPlanScore
 }

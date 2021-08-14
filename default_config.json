@@ -1,16 +1,25 @@
 {
     "NumberOfIterations": 100000,
-    "DayWeights": [
-        1,
-        1,
-        1,
-        1,
-        1,
-        -1,
-        -1
+    "ComplexMealRequested": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    ],
+    "SimpleMealRequested": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
     ],
     "MinimumScore": 10000,
-    "DuplicatePenalty": 100,
+    "ScorePenalty": 100,
     "DefinitionOfLongMealPrepTimeHours": 1.5,
     "PreferenceMealIDs": [],
     "PreferenceMealDaysOfWeek": [],
