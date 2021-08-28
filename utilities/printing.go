@@ -38,15 +38,16 @@ func PrintExcludedMeals(mealMap map[int]database.Meal, previousMealsToExclude []
 }
 
 func PrintMealPlan(weekPlan []database.Meal) {
+	dayNames := [...]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
 	if len(weekPlan) == 7 {
-		fmt.Println("Monday:   ", weekPlan[0].MealName)
-		fmt.Println("Tuesday:  ", weekPlan[1].MealName)
-		fmt.Println("Wednesday:", weekPlan[2].MealName)
-		fmt.Println("Thursday: ", weekPlan[3].MealName)
-		fmt.Println("Friday:   ", weekPlan[4].MealName)
-		fmt.Println("Saturday: ", weekPlan[5].MealName)
-		fmt.Println("Sunday:   ", weekPlan[6].MealName)
+		for i := range dayNames {
+			if weekPlan[i].ID != 0 {
+				fmt.Printf("%s: \t %s -> %d \n", dayNames[i], weekPlan[i].MealName, weekPlan[i].ID)
+			} else {
+				fmt.Printf("%s: \n", dayNames[i])
+			}
+		}
 	} else {
-		fmt.Println("Meal plan not complete.")
+		panic("Meal plan not complete. Expected to be of length 7.")
 	}
 }
