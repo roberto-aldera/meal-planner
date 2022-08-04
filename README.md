@@ -14,5 +14,5 @@ Some of the basics include setting specific days of the week as days you'd prefe
 ## Running the meal planner:
 Set up [golang](https://go.dev/) so that you can run `.go` files directly, and then run from the command line:
 ```
-go run main.go --config pat/to/your/custom_config.json
+go run main.go --config path/to/your/custom_config.json
 ```
