@@ -40,6 +40,5 @@ func CalculateScore(weekPlan []database.Meal, config Config) float64 {
 			visited[tmpWeekPlan[i].Category] = true
 		}
 	}
-
 	return mealPlanScore
 }

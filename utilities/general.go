@@ -17,7 +17,7 @@ func MakeMealMap(allMealsFromDatabase []database.Meal) map[int]database.Meal {
 }
 
 // Return a slice that is partially filled by the requests
-// Possibly also edit the meal map here, to delete reuqested meals as viable options?
+// Possibly also edit the meal map here, to delete requested meals as viable options?
 // Maybe that's better in another function that is called just after this one.
 func LoadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config Config) ([]database.Meal, map[int]database.Meal) {
 	weekPlanWithRequests := make([]database.Meal, 7)
@@ -74,7 +74,6 @@ func GetLunchMeals(is_lunch bool, mealMap map[int]database.Meal) []int {
 		}
 	}
 	return lunchMeals
-
 }
 
 func IsInSlice(slice []string, val string) bool {
