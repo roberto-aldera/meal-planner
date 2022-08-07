@@ -16,3 +16,14 @@ Set up [golang](https://go.dev/) so that you can run `.go` files directly, and t
 ```
 go run main.go --config path/to/your/custom_config.json
 ```
+
+## Running tests
+To run all tests, navigate to the top-level directory and run:
+```
+go test ./... -v
+```
+for verbose output.
+For coverage reporting in HTML format, run:
+```
+go test ./... -coverprofile cover.out && go tool cover -html=cover.out
+```
