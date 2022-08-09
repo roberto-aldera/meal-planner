@@ -27,7 +27,10 @@ func MakeMealPlan() {
 	categories := utilities.GetMealCategories(mealMap)
 	utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 
-	config := utilities.LoadConfiguration(*configFilePath)
+	config, err := utilities.LoadConfiguration(*configFilePath)
+	if err != nil {
+		panic("Configuration has failed to load.")
+	}
 
 	utilities.ValidateConfiguration(config)
 

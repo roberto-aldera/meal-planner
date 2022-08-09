@@ -3,6 +3,7 @@ package utilities
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -21,19 +22,19 @@ type Config struct {
 	ExcludeSoups                      bool
 }
 
-func LoadConfiguration(configFilePath string) Config {
-	var configuration Config
+func LoadConfiguration(configFilePath string) (configuration Config, err error) {
 	file, readErr := os.Open(configFilePath)
 	if readErr != nil {
 		fmt.Println(readErr.Error())
 	}
 	defer file.Close()
-	decoder := json.NewDecoder(file)
+	return decodeConfiguration(file)
+}
+
+func decodeConfiguration(handle io.Reader) (configuration Config, err error) {
+	decoder := json.NewDecoder(handle)
 	decoderErr := decoder.Decode(&configuration)
-	if decoderErr != nil {
-		fmt.Println("error:", decoderErr)
-	}
-	return configuration
+	return configuration, decoderErr
 }
 
 func ValidateConfiguration(configuration Config) {
