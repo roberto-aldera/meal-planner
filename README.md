@@ -1,4 +1,7 @@
 # meal-planner
+
+[![CI](https://github.com/roberto-aldera/meal-planner/actions/workflows/go.yml/badge.svg)](https://github.com/roberto-aldera/meal-planner/actions/workflows/go.yml)
+
 An application to plan meals given a set of constraints.
 
 ## What is this?
