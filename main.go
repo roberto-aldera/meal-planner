@@ -1,8 +1,15 @@
 package main
 
-import "github.com/roberto-aldera/meal-planner/strategy"
+import (
+	"flag"
+
+	"github.com/roberto-aldera/meal-planner/strategy"
+)
 
 func main() {
-	strategy.MakeMealPlan()
+	configFilePath := flag.String("config", "", "Path to configuration file")
+	flag.Parse()
+
+	strategy.MakeMealPlan(*configFilePath)
 	// database.GenerateDeterministicMealIDs()
 }

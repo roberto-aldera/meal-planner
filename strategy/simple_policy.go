@@ -2,7 +2,6 @@ package strategy
 
 import (
 	"database/sql"
-	"flag"
 	"fmt"
 	"math/rand"
 	"time"
@@ -11,10 +10,7 @@ import (
 	"github.com/roberto-aldera/meal-planner/utilities"
 )
 
-func MakeMealPlan() {
-
-	configFilePath := flag.String("config", "", "Path to configuration file")
-	flag.Parse()
+func MakeMealPlan(configFilePath string) {
 
 	fmt.Println("Running policy...")
 
@@ -27,7 +23,7 @@ func MakeMealPlan() {
 	categories := utilities.GetMealCategories(mealMap)
 	utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 
-	config, err := utilities.LoadConfiguration(*configFilePath)
+	config, err := utilities.LoadConfiguration(configFilePath)
 	if err != nil {
 		panic("Configuration has failed to load.")
 	}
