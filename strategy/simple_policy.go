@@ -15,7 +15,7 @@ func MakeMealPlan(configFilePath string) {
 	fmt.Println("Running policy...")
 
 	// Load meals from database and print out all candidates
-	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
+	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
 	defer sqliteDatabase.Close()
 	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 
