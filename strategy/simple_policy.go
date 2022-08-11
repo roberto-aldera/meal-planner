@@ -32,7 +32,10 @@ func MakeMealPlan() {
 		panic("Configuration has failed to load.")
 	}
 
-	utilities.ValidateConfiguration(config)
+	err = utilities.ValidateConfiguration(config)
+	if err != nil {
+		panic(fmt.Sprintf("Configuration validation failed: %s", err))
+	}
 
 	weekPlanWithRequests, mealMap := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
 	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)

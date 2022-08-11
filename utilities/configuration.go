@@ -37,39 +37,36 @@ func decodeConfiguration(handle io.Reader) (configuration Config, err error) {
 	return configuration, decoderErr
 }
 
-func ValidateConfiguration(configuration Config) {
+func ValidateConfiguration(configuration Config) (err error) {
 	if configuration.NumberOfIterations < 1 || configuration.NumberOfIterations > 1000000 {
-		errorString := fmt.Sprintf("Configuration error. Number of iterations is is outside of range: %d", configuration.NumberOfIterations)
-		panic(errorString)
+		return fmt.Errorf("number of iterations is is outside of range: %d", configuration.NumberOfIterations)
 	}
 	fmt.Println(len(configuration.ComplexMealRequested), configuration.ComplexMealRequested)
 	if len(configuration.ComplexMealRequested) != 7 {
-		panic("Configuration error. ComplexMealRequested length must be 7.")
+		return fmt.Errorf("complexMealRequested length must be 7, got %d", len(configuration.ComplexMealRequested))
 	}
 	if len(configuration.SimpleMealRequested) != 7 {
-		panic("Configuration error. SimpleMealRequested length must be 7.")
+		return fmt.Errorf("simpleMealRequested length must be 7")
 	}
 	for idx := range configuration.ComplexMealRequested {
 		if configuration.ComplexMealRequested[idx] && configuration.SimpleMealRequested[idx] {
-			errorString := fmt.Sprintf("Configuration error. Cannot request both complex and simple meal on the same day for index = %d", idx)
-			panic(errorString)
+			return fmt.Errorf("cannot request both complex and simple meal on the same day for index = %d", idx)
 		}
 	}
 	if configuration.MinimumScore < 0 {
-		errorString := fmt.Sprintf("Configuration error. Minimum score is negative: %f", configuration.MinimumScore)
-		panic(errorString)
+		return fmt.Errorf("minimum score is negative: %f", configuration.MinimumScore)
 	}
 	if configuration.ScorePenalty < 0 {
-		errorString := fmt.Sprintf("Configuration error. Duplicate penalty is negative: %f", configuration.ScorePenalty)
-		panic(errorString)
+		return fmt.Errorf("duplicate penalty is negative: %f", configuration.ScorePenalty)
 	}
 	if len(configuration.PreferenceMealIDs) < 0 || len(configuration.PreferenceMealIDs) > 7 {
-		panic("Configuration error. PreferenceMealIDs length is out of range (0,7)")
+		return fmt.Errorf("preferenceMealIDs length is out of range (0,7)")
 	}
 	if len(configuration.PreferenceMealDaysOfWeek) < 0 || len(configuration.PreferenceMealDaysOfWeek) > 7 {
-		panic("Configuration error. PreferenceMealDaysOfWeek length is out of range")
+		return fmt.Errorf("preferenceMealDaysOfWeek length is out of range")
 	}
 	if len(configuration.PreferenceMealIDs) != len(configuration.PreferenceMealDaysOfWeek) {
-		panic("Configuration error. PreferenceMealIDs length is different to PreferenceMealDaysOfWeek")
+		return fmt.Errorf("preferenceMealIDs length is different to PreferenceMealDaysOfWeek")
 	}
+	return nil
 }
