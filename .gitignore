@@ -15,7 +15,7 @@
 # vendor/
 
 # Database and other data-related files
-*.db
+# *.db
 *.csv
 
 # Local files
