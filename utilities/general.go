@@ -21,20 +21,17 @@ func MakeMealMap(allMealsFromDatabase []database.Meal) (mealMap map[int]database
 	return mealMap, err
 }
 
-// Return a slice that is partially filled by the requests
-// Possibly also edit the meal map here, to delete requested meals as viable options?
-// Maybe that's better in another function that is called just after this one.
-func LoadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config Config) ([]database.Meal, map[int]database.Meal) {
-	weekPlanWithRequests := make([]database.Meal, 7)
+// Return a slice that is partially filled by the requests.
+// Also edit the meal map here, to delete requested meals as viable options.
+func LoadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config Config) (weekPlanWithRequests []database.Meal,
+	updatedMealMap map[int]database.Meal, err error) {
+	weekPlanWithRequests = make([]database.Meal, 7)
 
-	// Quick check that the inputs are legal, which really should be done in a config validation somewhere...
-	if len(config.PreferenceMealIDs) == len(config.PreferenceMealDaysOfWeek) {
-		for idx, weekDay := range config.PreferenceMealDaysOfWeek {
-			weekPlanWithRequests[weekDay] = mealMap[config.PreferenceMealIDs[idx]]
-			delete(mealMap, config.PreferenceMealIDs[idx])
-		}
+	for idx, weekDay := range config.PreferenceMealDaysOfWeek {
+		weekPlanWithRequests[weekDay] = mealMap[config.PreferenceMealIDs[idx]]
+		delete(mealMap, config.PreferenceMealIDs[idx])
 	}
-	return weekPlanWithRequests, mealMap
+	return weekPlanWithRequests, mealMap, err
 }
 
 func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) map[int]database.Meal {

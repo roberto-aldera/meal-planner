@@ -21,26 +21,29 @@ func MakeMealPlan(configFilePath string) {
 
 	mealMap, err := utilities.MakeMealMap(allMealsFromDatabase)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Printf("MakeMealMap has failed: %s", err.Error())
 	}
 
 	categories, err := utilities.GetMealCategories(mealMap)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Printf("GetMealCategories has failed: %s", err.Error())
 	}
 	utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 
 	config, err := utilities.LoadConfiguration(configFilePath)
 	if err != nil {
-		panic("Configuration has failed to load.")
+		fmt.Printf("Configuration has failed to load: %s", err)
 	}
 
 	err = utilities.ValidateConfiguration(config)
 	if err != nil {
-		panic(fmt.Sprintf("Configuration validation failed: %s", err))
+		fmt.Printf("Configuration validation failed: %s", err)
 	}
 
-	weekPlanWithRequests, mealMap := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
+	weekPlanWithRequests, mealMap, err := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
+	if err != nil {
+		fmt.Printf("LoadMealRequestsAndUpdateMap failed: %s", err)
+	}
 	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
 	mealMap = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
 	mealMap = utilities.RemoveSpecificMeals(mealMap, config.PreviousMealsToExclude)
