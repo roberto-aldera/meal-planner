@@ -49,16 +49,18 @@ func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) ma
 	}
 	return mealMap
 }
-func GetMealCategories(mealMap map[int]database.Meal) []string {
-	categories := make([]string, 0)
+func GetMealCategories(mealMap map[int]database.Meal) (categories []string, err error) {
 	for _, meal := range mealMap {
 		if !IsInSlice(categories, meal.Category) {
 			categories = append(categories, meal.Category)
 		}
 	}
+	if len(categories) < 1 {
+		err = errors.New("no categories found in meal database")
+	}
 	// sort categories to ensure order is always the same (iterating over map is non-deterministic)
 	sort.Strings(categories)
-	return categories
+	return categories, err
 }
 func GetMealsInCategory(category string, mealMap map[int]database.Meal) []int {
 	// TODO: validate that category is correct (it must exist)

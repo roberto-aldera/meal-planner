@@ -24,7 +24,10 @@ func MakeMealPlan(configFilePath string) {
 		fmt.Println(err.Error())
 	}
 
-	categories := utilities.GetMealCategories(mealMap)
+	categories, err := utilities.GetMealCategories(mealMap)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 
 	config, err := utilities.LoadConfiguration(configFilePath)
