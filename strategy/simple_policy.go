@@ -19,7 +19,11 @@ func MakeMealPlan(configFilePath string) {
 	defer sqliteDatabase.Close()
 	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 
-	mealMap := utilities.MakeMealMap(allMealsFromDatabase)
+	mealMap, err := utilities.MakeMealMap(allMealsFromDatabase)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	categories := utilities.GetMealCategories(mealMap)
 	utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 

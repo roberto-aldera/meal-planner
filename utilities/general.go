@@ -1,6 +1,7 @@
 package utilities
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 
@@ -8,12 +9,16 @@ import (
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
-func MakeMealMap(allMealsFromDatabase []database.Meal) map[int]database.Meal {
-	mealMap := make(map[int]database.Meal)
-	for i := 0; i < len(allMealsFromDatabase); i++ {
-		mealMap[allMealsFromDatabase[i].ID] = allMealsFromDatabase[i]
+func MakeMealMap(allMealsFromDatabase []database.Meal) (mealMap map[int]database.Meal, err error) {
+	if len(allMealsFromDatabase) > 0 {
+		mealMap = make(map[int]database.Meal)
+		for i := 0; i < len(allMealsFromDatabase); i++ {
+			mealMap[allMealsFromDatabase[i].ID] = allMealsFromDatabase[i]
+		}
+	} else {
+		err = errors.New("no meals in database")
 	}
-	return mealMap
+	return mealMap, err
 }
 
 // Return a slice that is partially filled by the requests
