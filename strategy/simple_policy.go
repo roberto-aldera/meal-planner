@@ -54,7 +54,10 @@ func MakeMealPlan(configFilePath string) {
 		fmt.Printf("RemoveSpecificMeals failed: %s", err)
 	}
 	if config.ExcludeSoups {
-		soups := utilities.GetMealsInCategory("Soups", mealMap)
+		soups, err := utilities.GetMealsInCategory("Soups", mealMap)
+		if err != nil {
+			fmt.Printf("GetMealsInCategory failed: %s", err)
+		}
 		mealMap, err = utilities.RemoveSpecificMeals(mealMap, soups)
 		if err != nil {
 			fmt.Printf("RemoveSpecificMeals failed: %s", err)

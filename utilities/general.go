@@ -59,15 +59,19 @@ func GetMealCategories(mealMap map[int]database.Meal) (categories []string, err 
 	sort.Strings(categories)
 	return categories, err
 }
-func GetMealsInCategory(category string, mealMap map[int]database.Meal) []int {
+func GetMealsInCategory(category string, mealMap map[int]database.Meal) (mealsInCategory []int, err error) {
 	// TODO: validate that category is correct (it must exist)
-	mealsInCategory := make([]int, 0)
+	mealsInCategory = make([]int, 0)
 	for _, meal := range mealMap {
 		if meal.Category == category {
 			mealsInCategory = append(mealsInCategory, meal.ID)
 		}
 	}
-	return mealsInCategory
+	if len(mealsInCategory) == 0 {
+		// Then this category wasn't found in the database which shouldn't happen
+		err = fmt.Errorf("requested category %s not found in database", category)
+	}
+	return mealsInCategory, err
 }
 
 func GetLunchMeals(is_lunch bool, mealMap map[int]database.Meal) []int {
