@@ -45,15 +45,27 @@ func MakeMealPlan(configFilePath string) {
 		fmt.Printf("LoadMealRequestsAndUpdateMap failed: %s", err)
 	}
 	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
-	mealMap = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
-	mealMap = utilities.RemoveSpecificMeals(mealMap, config.PreviousMealsToExclude)
+	mealMap, err = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
+	if err != nil {
+		fmt.Printf("RemoveSpecificMeals failed: %s", err)
+	}
+	mealMap, err = utilities.RemoveSpecificMeals(mealMap, config.PreviousMealsToExclude)
+	if err != nil {
+		fmt.Printf("RemoveSpecificMeals failed: %s", err)
+	}
 	if config.ExcludeSoups {
 		soups := utilities.GetMealsInCategory("Soups", mealMap)
-		mealMap = utilities.RemoveSpecificMeals(mealMap, soups)
+		mealMap, err = utilities.RemoveSpecificMeals(mealMap, soups)
+		if err != nil {
+			fmt.Printf("RemoveSpecificMeals failed: %s", err)
+		}
 	}
 	if config.ExcludeLunches {
 		lunches := utilities.GetLunchMeals(config.ExcludeLunches, mealMap)
-		mealMap = utilities.RemoveSpecificMeals(mealMap, lunches)
+		mealMap, err = utilities.RemoveSpecificMeals(mealMap, lunches)
+		if err != nil {
+			fmt.Printf("RemoveSpecificMeals failed: %s", err)
+		}
 	}
 
 	fmt.Println("--------------------------------------------------------------------------------")

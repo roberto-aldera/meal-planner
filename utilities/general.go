@@ -34,17 +34,17 @@ func LoadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config Config) 
 	return weekPlanWithRequests, mealMap, err
 }
 
-func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) map[int]database.Meal {
+func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) (mealMapWithExclusions map[int]database.Meal, err error) {
 	for _, item := range mealsToExclude {
 		_, keyIsValid := mealMap[item]
 		if keyIsValid {
 			glog.Info("Removing ", mealMap[item].MealName)
 			delete(mealMap, item)
 		} else {
-			panic(fmt.Sprintf("Meal key doesn't exist: %d", item))
+			err = fmt.Errorf("meal key doesn't exist: %d", item)
 		}
 	}
-	return mealMap
+	return mealMap, err
 }
 func GetMealCategories(mealMap map[int]database.Meal) (categories []string, err error) {
 	for _, meal := range mealMap {
