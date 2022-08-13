@@ -74,14 +74,18 @@ func GetMealsInCategory(category string, mealMap map[int]database.Meal) (mealsIn
 	return mealsInCategory, err
 }
 
-func GetLunchMeals(is_lunch bool, mealMap map[int]database.Meal) []int {
-	lunchMeals := make([]int, 0)
+func GetLunchMeals(is_lunch bool, mealMap map[int]database.Meal) ([]int lunchMeals, err error) {
+	lunchMeals = make([]int, 0)
 	for _, meal := range mealMap {
 		if meal.LunchOnly {
 			lunchMeals = append(lunchMeals, meal.ID)
 		}
 	}
-	return lunchMeals
+	if len(lunchMeals) == 0 {
+		// Then no lunch meals were found in the database which we must flag
+		err = errors.New("no lunch meals found in database")
+	}
+	return lunchMeals, err
 }
 
 func IsInSlice(slice []string, val string) bool {

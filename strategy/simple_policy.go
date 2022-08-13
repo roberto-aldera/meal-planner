@@ -64,7 +64,10 @@ func MakeMealPlan(configFilePath string) {
 		}
 	}
 	if config.ExcludeLunches {
-		lunches := utilities.GetLunchMeals(config.ExcludeLunches, mealMap)
+		lunches, err := utilities.GetLunchMeals(config.ExcludeLunches, mealMap)
+		if err != nil {
+			fmt.Printf("GetLunchMeals error: %s", err)
+		}
 		mealMap, err = utilities.RemoveSpecificMeals(mealMap, lunches)
 		if err != nil {
 			fmt.Printf("RemoveSpecificMeals failed: %s", err)
