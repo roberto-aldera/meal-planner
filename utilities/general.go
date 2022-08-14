@@ -35,7 +35,8 @@ func LoadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config Config) 
 	return weekPlanWithRequests, err
 }
 
-func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) (mealMapWithExclusions map[int]database.Meal, err error) {
+// Note maps are passed by reference, so this function will edit the mealMap (and not return a new one).
+func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) (err error) {
 	for _, item := range mealsToExclude {
 		_, keyIsValid := mealMap[item]
 		if keyIsValid {
@@ -45,7 +46,7 @@ func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) (m
 			err = fmt.Errorf("meal key doesn't exist: %d", item)
 		}
 	}
-	return mealMap, err
+	return err
 }
 func GetMealCategories(mealMap map[int]database.Meal) (categories []string, err error) {
 	for _, meal := range mealMap {

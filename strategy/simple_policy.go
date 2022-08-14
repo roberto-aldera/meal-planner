@@ -45,11 +45,11 @@ func MakeMealPlan(configFilePath string) {
 		fmt.Printf("LoadMealRequestsAndUpdateMap failed: %s", err)
 	}
 	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
-	mealMap, err = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
+	err = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
 	if err != nil {
 		fmt.Printf("RemoveSpecificMeals failed: %s", err)
 	}
-	mealMap, err = utilities.RemoveSpecificMeals(mealMap, config.PreviousMealsToExclude)
+	err = utilities.RemoveSpecificMeals(mealMap, config.PreviousMealsToExclude)
 	if err != nil {
 		fmt.Printf("RemoveSpecificMeals failed: %s", err)
 	}
@@ -58,7 +58,7 @@ func MakeMealPlan(configFilePath string) {
 		if err != nil {
 			fmt.Printf("GetMealsInCategory failed: %s", err)
 		}
-		mealMap, err = utilities.RemoveSpecificMeals(mealMap, soups)
+		err = utilities.RemoveSpecificMeals(mealMap, soups)
 		if err != nil {
 			fmt.Printf("RemoveSpecificMeals failed: %s", err)
 		}
@@ -68,7 +68,7 @@ func MakeMealPlan(configFilePath string) {
 		if err != nil {
 			fmt.Printf("GetLunchMeals error: %s", err)
 		}
-		mealMap, err = utilities.RemoveSpecificMeals(mealMap, lunches)
+		err = utilities.RemoveSpecificMeals(mealMap, lunches)
 		if err != nil {
 			fmt.Printf("RemoveSpecificMeals failed: %s", err)
 		}
