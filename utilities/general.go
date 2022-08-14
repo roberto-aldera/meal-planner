@@ -23,15 +23,16 @@ func MakeMealMap(allMealsFromDatabase []database.Meal) (mealMap map[int]database
 
 // Return a slice that is partially filled by the requests.
 // Also edit the meal map here, to delete requested meals as viable options.
+// Note maps are passed by reference, so this function will edit the mealMap (and not return a new one).
 func LoadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config Config) (weekPlanWithRequests []database.Meal,
-	updatedMealMap map[int]database.Meal, err error) {
+	err error) {
 	weekPlanWithRequests = make([]database.Meal, 7)
 
 	for idx, weekDay := range config.PreferenceMealDaysOfWeek {
 		weekPlanWithRequests[weekDay] = mealMap[config.PreferenceMealIDs[idx]]
 		delete(mealMap, config.PreferenceMealIDs[idx])
 	}
-	return weekPlanWithRequests, mealMap, err
+	return weekPlanWithRequests, err
 }
 
 func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) (mealMapWithExclusions map[int]database.Meal, err error) {

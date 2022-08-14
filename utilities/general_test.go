@@ -30,3 +30,24 @@ func TestMakeMealMap(t *testing.T) {
 		t.Fatal("Meal map does not contain all the meals stored in the original database.")
 	}
 }
+
+func TestLoadMealRequestsAndUpdateMap(t *testing.T) {
+	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
+	defer sqliteDatabase.Close()
+	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+
+	mealMap, _ := MakeMealMap(allMealsFromDatabase)
+	filePath := "../default_config.json"
+	config, _ := LoadConfiguration(filePath)
+	config.PreferenceMealDaysOfWeek = []int{3}
+	config.PreferenceMealIDs = []int{755}
+	lengthOfOriginalMap := len(mealMap)
+	_, err := LoadMealRequestsAndUpdateMap(mealMap, config)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(mealMap) >= lengthOfOriginalMap {
+		t.Fatal("Udpated meal map deletion did not occur as expected.")
+	}
+}

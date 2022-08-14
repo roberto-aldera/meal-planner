@@ -40,7 +40,7 @@ func MakeMealPlan(configFilePath string) {
 		fmt.Printf("Configuration validation failed: %s", err)
 	}
 
-	weekPlanWithRequests, mealMap, err := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
+	weekPlanWithRequests, err := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
 	if err != nil {
 		fmt.Printf("LoadMealRequestsAndUpdateMap failed: %s", err)
 	}
