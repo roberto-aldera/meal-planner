@@ -62,7 +62,6 @@ func GetMealCategories(mealMap map[int]database.Meal) (categories []string, err 
 	return categories, err
 }
 func GetMealsInCategory(category string, mealMap map[int]database.Meal) (mealsInCategory []int, err error) {
-	// TODO: validate that category is correct (it must exist)
 	mealsInCategory = make([]int, 0)
 	for _, meal := range mealMap {
 		if meal.Category == category {
