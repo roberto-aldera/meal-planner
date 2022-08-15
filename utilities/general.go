@@ -75,7 +75,7 @@ func GetMealsInCategory(category string, mealMap map[int]database.Meal) (mealsIn
 	return mealsInCategory, err
 }
 
-func GetLunchMeals(is_lunch bool, mealMap map[int]database.Meal) (lunchMeals []int, err error) {
+func GetLunchMeals(mealMap map[int]database.Meal) (lunchMeals []int, err error) {
 	lunchMeals = make([]int, 0)
 	for _, meal := range mealMap {
 		if meal.LunchOnly {

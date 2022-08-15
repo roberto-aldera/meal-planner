@@ -115,3 +115,23 @@ func TestGetMealsInCategory(t *testing.T) {
 		t.Fatal("GetMealsInCategory has failed.")
 	}
 }
+
+func TestGetLunchMeals(t *testing.T) {
+	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
+	defer sqliteDatabase.Close()
+	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+
+	var emptyMealMap map[int]database.Meal
+	_, err := GetLunchMeals(emptyMealMap)
+
+	if err == nil {
+		t.Fatal("Expected an error when using an empty meal map.")
+	}
+
+	mealMap, _ := MakeMealMap(allMealsFromDatabase)
+	_, err = GetLunchMeals(mealMap)
+
+	if err != nil {
+		t.Fatal("GetLunchMeals has failed.")
+	}
+}
