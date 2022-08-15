@@ -51,3 +51,28 @@ func TestLoadMealRequestsAndUpdateMap(t *testing.T) {
 		t.Fatal("Udpated meal map deletion did not occur as expected.")
 	}
 }
+
+func TestRemoveSpecificMeals(t *testing.T) {
+	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
+	defer sqliteDatabase.Close()
+	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+
+	mealMap, _ := MakeMealMap(allMealsFromDatabase)
+	lengthOfOriginalMap := len(mealMap)
+
+	mealsToExclude := []int{1} // a non-existent ID
+	err := RemoveSpecificMeals(mealMap, mealsToExclude)
+	if err == nil {
+		t.Fatal("Expected an error when deleting a non-existent meal.")
+	}
+
+	mealsToExclude = []int{755}
+	err = RemoveSpecificMeals(mealMap, mealsToExclude)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(mealMap) >= lengthOfOriginalMap {
+		t.Fatal("Removing specific meals did not occur as expected.")
+	}
+}
