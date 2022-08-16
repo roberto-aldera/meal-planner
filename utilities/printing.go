@@ -1,16 +1,22 @@
 package utilities
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
-func PrintMealDatabase(mealDatabase []database.Meal) {
+func PrintMealDatabase(mealDatabase []database.Meal) (err error) {
+	if len(mealDatabase) == 0 {
+		err = errors.New("meal database is empty")
+		return err
+	}
 	fmt.Println("Meals available are:")
 	for _, meal := range mealDatabase {
 		fmt.Println(meal.ID, "->", meal.MealName)
 	}
+	return err
 }
 
 func PrintMealDatabaseWithCategories(mealDatabase []database.Meal, categories []string) {
