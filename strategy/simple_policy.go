@@ -82,7 +82,10 @@ func MakeMealPlan(configFilePath string) {
 
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
-	utilities.PrintMealPlan(weekPlanWithRequests)
+	err = utilities.PrintMealPlan(weekPlanWithRequests)
+	if err != nil {
+		fmt.Printf("PrintMealPlan failed: %s", err)
+	}
 	fmt.Println("--------------------------------------------------------------------------------")
 
 	bestScore := config.MinimumScore // lower is better

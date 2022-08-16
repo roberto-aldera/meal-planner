@@ -62,7 +62,7 @@ func PrintExcludedMeals(mealMap map[int]database.Meal, previousMealsToExclude []
 	return err
 }
 
-func PrintMealPlan(weekPlan []database.Meal) {
+func PrintMealPlan(weekPlan []database.Meal) (err error) {
 	dayNames := [...]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
 	if len(weekPlan) == 7 {
 		for i := range dayNames {
@@ -73,6 +73,7 @@ func PrintMealPlan(weekPlan []database.Meal) {
 			}
 		}
 	} else {
-		panic("Meal plan not complete. Expected to be of length 7.")
+		err = fmt.Errorf("meal plan not complete. Expected to be of length 7, got %d", len(weekPlan))
 	}
+	return err
 }
