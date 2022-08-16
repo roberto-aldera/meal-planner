@@ -47,7 +47,10 @@ func MakeMealPlan(configFilePath string) {
 	if err != nil {
 		fmt.Printf("LoadMealRequestsAndUpdateMap failed: %s", err)
 	}
-	utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
+	err = utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
+	if err != nil {
+		fmt.Printf("PrintExcludedMeals failed: %s", err)
+	}
 	err = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
 	if err != nil {
 		fmt.Printf("RemoveSpecificMeals failed: %s", err)
