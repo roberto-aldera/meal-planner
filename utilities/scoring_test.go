@@ -20,10 +20,26 @@ func TestCalculateScore(t *testing.T) {
 		t.Fatal("Expected an error when using a week meal plan with at least one empty meal.")
 	}
 
-	var realMeal database.Meal
-	realMeal.ID = 123
-	realMeal.MealName = "A tasty dish"
-	weekPlan = []database.Meal{realMeal, realMeal, realMeal, realMeal, realMeal, realMeal, realMeal}
+	var complexMeal database.Meal
+	complexMeal.ID = 123
+	complexMeal.MealName = "Complex dish"
+	complexMeal.CookingTime = 3
+
+	var standardMeal database.Meal
+	standardMeal.ID = 124
+	standardMeal.MealName = "Standard dish"
+	standardMeal.CookingTime = 1
+
+	var quickMeal database.Meal
+	quickMeal.ID = 125
+	quickMeal.MealName = "Quick dish"
+	quickMeal.CookingTime = 0.25
+	quickMeal.IsQuick = true
+
+	config.ComplexMealRequested = []bool{true, false, false, false, false, false, false}
+	config.SimpleMealRequested = []bool{false, false, false, false, false, false, true}
+
+	weekPlan = []database.Meal{standardMeal, complexMeal, quickMeal, complexMeal, complexMeal, complexMeal, complexMeal}
 
 	_, err = CalculateScore(weekPlan, config)
 	if err != nil {
