@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/roberto-aldera/meal-planner/actions/workflows/go.yml/badge.svg)](https://github.com/roberto-aldera/meal-planner/actions/workflows/go.yml)
 
-An application to plan meals given a set of constraints.
+An application to plan meals given a set of constraints :pencil: :cook:
 
 ## What is this?
 Coming up with a balanced weekly meal plan can sometimes be quite tricky as we tend to fall into patterns and forget about alternative recipes we haven't made in a while.
