@@ -1,14 +1,12 @@
 package utilities
 
 import (
-	"database/sql"
 	"testing"
 
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
 func TestPrintMealDatabase(t *testing.T) {
-
 	// First just check with empty database
 	var emptyDatabase []database.Meal
 	err := PrintMealDatabase(emptyDatabase)
@@ -16,9 +14,7 @@ func TestPrintMealDatabase(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	allMealsFromDatabase := newDatabase(t)
 
 	err = PrintMealDatabase(allMealsFromDatabase)
 	if err != nil {
@@ -35,9 +31,7 @@ func TestPrintMealDatabaseWithCategories(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	allMealsFromDatabase := newDatabase(t)
 
 	// Try with empty category string
 	var emptyCategories []string
@@ -62,9 +56,7 @@ func TestPrintExcludedMeals(t *testing.T) {
 		t.Fatal("Expected an error when using an empty meal map.")
 	}
 
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	allMealsFromDatabase := newDatabase(t)
 	mealMap, _ := MakeMealMap(allMealsFromDatabase)
 
 	// Check if no meals were excluded
