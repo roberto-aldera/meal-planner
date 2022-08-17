@@ -7,6 +7,14 @@ import (
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
+func newDatabase(t *testing.T) []database.Meal {
+	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
+	defer sqliteDatabase.Close()
+	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+
+	return allMealsFromDatabase
+}
+
 // Check that configuration loads as expected
 func TestMakeMealMap(t *testing.T) {
 
@@ -17,9 +25,7 @@ func TestMakeMealMap(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	allMealsFromDatabase := newDatabase(t)
 
 	mealMap, err := MakeMealMap(allMealsFromDatabase)
 	if err != nil {
@@ -32,10 +38,7 @@ func TestMakeMealMap(t *testing.T) {
 }
 
 func TestLoadMealRequestsAndUpdateMap(t *testing.T) {
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-
+	allMealsFromDatabase := newDatabase(t)
 	mealMap, _ := MakeMealMap(allMealsFromDatabase)
 	filePath := "../default_config.json"
 	config, _ := LoadConfiguration(filePath)
@@ -48,15 +51,12 @@ func TestLoadMealRequestsAndUpdateMap(t *testing.T) {
 	}
 
 	if len(mealMap) >= lengthOfOriginalMap {
-		t.Fatal("Udpated meal map deletion did not occur as expected.")
+		t.Fatal("Updated meal map deletion did not occur as expected.")
 	}
 }
 
 func TestRemoveSpecificMeals(t *testing.T) {
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-
+	allMealsFromDatabase := newDatabase(t)
 	mealMap, _ := MakeMealMap(allMealsFromDatabase)
 	lengthOfOriginalMap := len(mealMap)
 
@@ -78,10 +78,6 @@ func TestRemoveSpecificMeals(t *testing.T) {
 }
 
 func TestGetMealCategories(t *testing.T) {
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-
 	var emptyMealMap map[int]database.Meal
 	_, err := GetMealCategories(emptyMealMap)
 
@@ -89,6 +85,7 @@ func TestGetMealCategories(t *testing.T) {
 		t.Fatal("Expected an error when using an empty meal map.")
 	}
 
+	allMealsFromDatabase := newDatabase(t)
 	mealMap, _ := MakeMealMap(allMealsFromDatabase)
 	_, err = GetMealCategories(mealMap)
 
@@ -98,10 +95,7 @@ func TestGetMealCategories(t *testing.T) {
 }
 
 func TestGetMealsInCategory(t *testing.T) {
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-
+	allMealsFromDatabase := newDatabase(t)
 	mealMap, _ := MakeMealMap(allMealsFromDatabase)
 	_, err := GetMealsInCategory("Pet food", mealMap)
 
@@ -117,10 +111,6 @@ func TestGetMealsInCategory(t *testing.T) {
 }
 
 func TestGetLunchMeals(t *testing.T) {
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-
 	var emptyMealMap map[int]database.Meal
 	_, err := GetLunchMeals(emptyMealMap)
 
@@ -128,6 +118,7 @@ func TestGetLunchMeals(t *testing.T) {
 		t.Fatal("Expected an error when using an empty meal map.")
 	}
 
+	allMealsFromDatabase := newDatabase(t)
 	mealMap, _ := MakeMealMap(allMealsFromDatabase)
 	_, err = GetLunchMeals(mealMap)
 
