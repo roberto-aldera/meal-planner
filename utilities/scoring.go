@@ -1,17 +1,24 @@
 package utilities
 
 import (
+	"errors"
+
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
 // A big function to hold all the hand-written rules for now
 // So tally things like cooking time, frequencies of dishes,
 // complex things during the week, etc. and then score accordingly
-func CalculateScore(weekPlan []database.Meal, config Config) float64 {
-	mealPlanScore := 0.0
+func CalculateScore(weekPlan []database.Meal, config Config) (mealPlanScore float64, err error) {
+	mealPlanScore = 0.0
 
 	// Score for meal complexity and cooking times for specified days
 	for i := 0; i < len(weekPlan); i++ {
+		// Check element isn't empty
+		if weekPlan[i].ID == 0 {
+			return config.MinimumScore, errors.New("week plan contains an empty meal")
+		}
+
 		// Meals that take longer to cook (are "complex") should be cooked on requested days
 		// This penalises them being suggested when they weren't requested, and also penalises
 		// them not being suggested when they were requested
@@ -40,5 +47,5 @@ func CalculateScore(weekPlan []database.Meal, config Config) float64 {
 			visited[tmpWeekPlan[i].Category] = true
 		}
 	}
-	return mealPlanScore
+	return mealPlanScore, err
 }

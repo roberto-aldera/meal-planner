@@ -95,7 +95,10 @@ func MakeMealPlan(configFilePath string) {
 
 	for i := 0; i < config.NumberOfIterations; i++ {
 		weekPlan := pickRandomMealsWithMap(mealMap, weekPlanWithRequests, config)
-		mealPlanScore := utilities.CalculateScore(weekPlan, config)
+		mealPlanScore, err := utilities.CalculateScore(weekPlan, config)
+		if err != nil {
+			fmt.Printf("CalculateScore failed: %s", err)
+		}
 		if mealPlanScore < bestScore {
 			bestMealPlan = weekPlan
 			bestScore = mealPlanScore
