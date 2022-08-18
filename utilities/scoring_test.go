@@ -9,8 +9,6 @@ import (
 func TestCalculateScore(t *testing.T) {
 	filePath := "../default_config.json"
 	config, _ := LoadConfiguration(filePath)
-	// config.PreferenceMealDaysOfWeek = []int{3}
-	// config.PreferenceMealIDs = []int{755}
 
 	var emptyMeal database.Meal
 	weekPlan := []database.Meal{emptyMeal, emptyMeal, emptyMeal, emptyMeal, emptyMeal, emptyMeal, emptyMeal}

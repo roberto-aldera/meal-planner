@@ -1,18 +1,33 @@
 package utilities
 
 import (
-	"database/sql"
 	"testing"
 
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
 func newDatabase(t *testing.T) []database.Meal {
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	identifiers := []int{101, 102, 103, 104, 105, 106, 107, 108, 109, 110}
+	mealNames := []string{"Dish 1", "Dish 2", "Dish 3", "Dish 4", "Dish 5", "Dish 6", "Dish 7", "Dish 8", "Dish 9", "Dish 10"}
+	cookingTime := []float64{1, 1, 0.5, 1, 1.5, 1.25, 1, 1.5, 0.75, 1}
+	category := []string{"Pasta", "Soup", "Salad", "Healthy mix", "Curry", "Asian", "Meat with carb", "Rice/grains", "Pasta", "Pasta"}
+	lunchOnly := []bool{false, false, false, false, false, false, false, false, false, true}
+	isQuick := []bool{false, false, false, false, false, false, false, false, true, true}
 
-	return allMealsFromDatabase
+	var mealDatabase []database.Meal
+
+	for i := 0; i < len(identifiers); i++ {
+		meal := database.Meal{
+			ID:          identifiers[i],
+			MealName:    mealNames[i],
+			CookingTime: cookingTime[i],
+			Category:    category[i],
+			LunchOnly:   lunchOnly[i],
+			IsQuick:     isQuick[i]}
+		mealDatabase = append(mealDatabase, meal)
+	}
+
+	return mealDatabase
 }
 
 // Check that configuration loads as expected
@@ -43,7 +58,7 @@ func TestLoadMealRequestsAndUpdateMap(t *testing.T) {
 	filePath := "../default_config.json"
 	config, _ := LoadConfiguration(filePath)
 	config.PreferenceMealDaysOfWeek = []int{3}
-	config.PreferenceMealIDs = []int{755}
+	config.PreferenceMealIDs = []int{103}
 	lengthOfOriginalMap := len(mealMap)
 	_, err := LoadMealRequestsAndUpdateMap(mealMap, config)
 	if err != nil {
@@ -66,7 +81,7 @@ func TestRemoveSpecificMeals(t *testing.T) {
 		t.Fatal("Expected an error when deleting a non-existent meal.")
 	}
 
-	mealsToExclude = []int{755}
+	mealsToExclude = []int{103}
 	err = RemoveSpecificMeals(mealMap, mealsToExclude)
 	if err != nil {
 		t.Fatal(err)

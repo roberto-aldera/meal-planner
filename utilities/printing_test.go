@@ -50,7 +50,7 @@ func TestPrintMealDatabaseWithCategories(t *testing.T) {
 func TestPrintExcludedMeals(t *testing.T) {
 	// First just check with empty database
 	var emptyMealMap map[int]database.Meal
-	previousMealsToExclude := []int{123}
+	previousMealsToExclude := []int{103}
 	err := PrintExcludedMeals(emptyMealMap, previousMealsToExclude)
 	if err == nil {
 		t.Fatal("Expected an error when using an empty meal map.")
@@ -74,7 +74,7 @@ func TestPrintExcludedMeals(t *testing.T) {
 	}
 
 	// An finally check happy path runs as expected
-	previousMealsToExclude = []int{123}
+	previousMealsToExclude = []int{103}
 	err = PrintExcludedMeals(mealMap, previousMealsToExclude)
 	if err != nil {
 		t.Fatal(err.Error())
