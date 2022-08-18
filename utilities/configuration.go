@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	MealDatabasePath                  string
 	NumberOfIterations                int
 	ComplexMealRequested              []bool
 	SimpleMealRequested               []bool

@@ -1,4 +1,5 @@
 {
+    "MealDatabasePath": "",
     "NumberOfIterations": 100000,
     "ComplexMealRequested": [
         false,

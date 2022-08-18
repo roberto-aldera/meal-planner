@@ -1,7 +1,6 @@
 package strategy
 
 import (
-	"database/sql"
 	"fmt"
 	"math/rand"
 	"time"
@@ -10,15 +9,8 @@ import (
 	"github.com/roberto-aldera/meal-planner/utilities"
 )
 
-func MakeMealPlan(configFilePath string) {
-
+func MakeMealPlan(config utilities.Config, allMealsFromDatabase []database.Meal) (err error) {
 	fmt.Println("Running policy...")
-
-	// Load meals from database and print out all candidates
-	sqliteDatabase, _ := sql.Open("sqlite3", "../meal-data.db")
-	defer sqliteDatabase.Close()
-	allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
-
 	mealMap, err := utilities.MakeMealMap(allMealsFromDatabase)
 	if err != nil {
 		fmt.Printf("MakeMealMap has failed: %s", err.Error())
@@ -31,16 +23,6 @@ func MakeMealPlan(configFilePath string) {
 	err = utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 	if err != nil {
 		fmt.Printf("PrintMealDatabaseWithCategories has failed: %s", err.Error())
-	}
-
-	config, err := utilities.LoadConfiguration(configFilePath)
-	if err != nil {
-		fmt.Printf("Configuration has failed to load: %s", err)
-	}
-
-	err = utilities.ValidateConfiguration(config)
-	if err != nil {
-		fmt.Printf("Configuration validation failed: %s", err)
 	}
 
 	weekPlanWithRequests, err := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
@@ -112,6 +94,7 @@ func MakeMealPlan(configFilePath string) {
 	} else {
 		fmt.Println("No valid meal plan was possible with the provided requirements.")
 	}
+	return err
 }
 
 func pickRandomMealsWithMap(mealMap map[int]database.Meal, weekPlanWithRequests []database.Meal, config utilities.Config) []database.Meal {
