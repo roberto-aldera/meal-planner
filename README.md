@@ -1,6 +1,7 @@
 # meal-planner
 
 [![CI](https://github.com/roberto-aldera/meal-planner/actions/workflows/go.yml/badge.svg)](https://github.com/roberto-aldera/meal-planner/actions/workflows/go.yml)
+[![codecov](https://codecov.io/gh/roberto-aldera/meal-planner/branch/main/graph/badge.svg?token=XR7M01RJHE)](https://codecov.io/gh/roberto-aldera/meal-planner)
 
 An application to plan meals given a set of constraints :pencil: :cook:
 
