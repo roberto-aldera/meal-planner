@@ -31,7 +31,8 @@ func newDatabase(t *testing.T) []database.Meal {
 
 	return mealDatabase
 }
-func TestMakeMealPlan(t *testing.T) {
+
+func newConfig(t *testing.T) (config utilities.Config) {
 	configFilePath := "../default_config.json"
 
 	config, err := utilities.LoadConfiguration(configFilePath)
@@ -43,6 +44,21 @@ func TestMakeMealPlan(t *testing.T) {
 	if err != nil {
 		fmt.Printf("Configuration validation failed: %s", err)
 	}
+	return config
+}
+func TestMakeMealPlan(t *testing.T) {
+	config := newConfig(t)
+	err := MakeMealPlan(config, newDatabase(t))
+	if err != nil {
+		fmt.Printf("MakeMealPlan failed: %s", err)
+	}
+}
 
-	MakeMealPlan(config, newDatabase(t))
+func TestMakeMealPlanWhenEmpty(t *testing.T) {
+	config := newConfig(t)
+	var emptyDatabase []database.Meal
+	err := MakeMealPlan(config, emptyDatabase)
+	if err == nil {
+		t.Fatal("Expected an error when using an empty meal database.")
+	}
 }
