@@ -10,21 +10,9 @@ import (
 )
 
 func MakeMealPlan(config utilities.Config, allMealsFromDatabase []database.Meal) (err error) {
-	fmt.Println("Running policy...")
-	mealMap, err := utilities.MakeMealMap(allMealsFromDatabase)
+	mealMap, err := setupMealMap(config, allMealsFromDatabase)
 	if err != nil {
-		fmt.Printf("MakeMealMap has failed: %s", err.Error())
-		return err
-	}
-
-	categories, err := utilities.GetMealCategories(mealMap)
-	if err != nil {
-		fmt.Printf("GetMealCategories has failed: %s", err.Error())
-		return err
-	}
-	err = utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
-	if err != nil {
-		fmt.Printf("PrintMealDatabaseWithCategories has failed: %s", err.Error())
+		return fmt.Errorf("setupMealMap has failed %s", err)
 	}
 
 	weekPlanWithRequests, err := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
@@ -97,6 +85,32 @@ func MakeMealPlan(config utilities.Config, allMealsFromDatabase []database.Meal)
 		fmt.Println("No valid meal plan was possible with the provided requirements.")
 	}
 	return err
+}
+
+func setupMealMap(config utilities.Config, allMealsFromDatabase []database.Meal) (map[int]database.Meal, error) {
+	mealMap, err := utilities.MakeMealMap(allMealsFromDatabase)
+	if err != nil {
+		fmt.Printf("MakeMealMap has failed: %s", err.Error())
+		return nil, err
+	}
+	categories, err := utilities.GetMealCategories(mealMap)
+	if err != nil {
+		fmt.Printf("GetMealCategories has failed: %s", err.Error())
+		return nil, err
+	}
+
+	fmt.Println("Meals available are:")
+	for _, category := range categories {
+		fmt.Println("\n------------------------------>", category)
+		for _, meal := range allMealsFromDatabase {
+			if meal.Category == category {
+				fmt.Println(meal.ID, "->", meal.MealName)
+			}
+		}
+	}
+	fmt.Println("\n--------------------------------------------------------------------------------")
+
+	return mealMap, err
 }
 
 func pickRandomMealsWithMap(mealMap map[int]database.Meal, weekPlanWithRequests []database.Meal, config utilities.Config) []database.Meal {

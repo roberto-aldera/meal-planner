@@ -19,28 +19,6 @@ func PrintMealDatabase(mealDatabase []database.Meal) (err error) {
 	return err
 }
 
-func PrintMealDatabaseWithCategories(mealDatabase []database.Meal, categories []string) (err error) {
-	if len(mealDatabase) == 0 {
-		err = errors.New("meal database is empty")
-		return err
-	}
-	if len(categories) == 0 {
-		err = errors.New("list of categories is empty")
-		return err
-	}
-	fmt.Println("Meals available are:")
-	for _, category := range categories {
-		fmt.Println("\n------------------------------>", category)
-		for _, meal := range mealDatabase {
-			if meal.Category == category {
-				fmt.Println(meal.ID, "->", meal.MealName)
-			}
-		}
-	}
-	fmt.Println("\n--------------------------------------------------------------------------------")
-	return err
-}
-
 func PrintExcludedMeals(mealMap map[int]database.Meal, previousMealsToExclude []int) (err error) {
 	if len(mealMap) == 0 {
 		err = errors.New("meal map is empty")

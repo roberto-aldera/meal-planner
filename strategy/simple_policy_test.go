@@ -76,3 +76,11 @@ func TestMakeMealPlanWithEmptyCategories(t *testing.T) {
 		t.Fatal("Expected an error when using empty categories.")
 	}
 }
+
+func TestSetupMealMap(t *testing.T) {
+	config := newConfig(t)
+	_, err := setupMealMap(config, newDatabase(t))
+	if err != nil {
+		fmt.Printf("setupMealMap failed: %s", err)
+	}
+}

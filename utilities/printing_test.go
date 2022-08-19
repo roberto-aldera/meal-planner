@@ -22,31 +22,6 @@ func TestPrintMealDatabase(t *testing.T) {
 	}
 }
 
-func TestPrintMealDatabaseWithCategories(t *testing.T) {
-	// First just check with empty database
-	var emptyDatabase []database.Meal
-	categories := []string{"Pasta"}
-	err := PrintMealDatabaseWithCategories(emptyDatabase, categories)
-	if err == nil {
-		t.Fatal(err.Error())
-	}
-
-	allMealsFromDatabase := newDatabase(t)
-
-	// Try with empty category string
-	var emptyCategories []string
-	err = PrintMealDatabaseWithCategories(allMealsFromDatabase, emptyCategories)
-	if err == nil {
-		t.Fatal(err.Error())
-	}
-
-	categories = []string{"Pasta"}
-	err = PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-}
-
 func TestPrintExcludedMeals(t *testing.T) {
 	// First just check with empty database
 	var emptyMealMap map[int]database.Meal
