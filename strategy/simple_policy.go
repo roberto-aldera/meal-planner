@@ -20,6 +20,7 @@ func MakeMealPlan(config utilities.Config, allMealsFromDatabase []database.Meal)
 	categories, err := utilities.GetMealCategories(mealMap)
 	if err != nil {
 		fmt.Printf("GetMealCategories has failed: %s", err.Error())
+		return err
 	}
 	err = utilities.PrintMealDatabaseWithCategories(allMealsFromDatabase, categories)
 	if err != nil {

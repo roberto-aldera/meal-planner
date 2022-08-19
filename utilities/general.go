@@ -50,7 +50,7 @@ func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) (e
 }
 func GetMealCategories(mealMap map[int]database.Meal) (categories []string, err error) {
 	for _, meal := range mealMap {
-		if !IsInSlice(categories, meal.Category) {
+		if !IsInSlice(categories, meal.Category) && meal.Category != "" {
 			categories = append(categories, meal.Category)
 		}
 	}

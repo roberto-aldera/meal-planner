@@ -62,3 +62,17 @@ func TestMakeMealPlanWhenEmpty(t *testing.T) {
 		t.Fatal("Expected an error when using an empty meal database.")
 	}
 }
+
+func TestMakeMealPlanWithEmptyCategories(t *testing.T) {
+	config := newConfig(t)
+	database := newDatabase(t)
+
+	for i := 0; i < len(database); i++ {
+		database[i].Category = ""
+	}
+
+	err := MakeMealPlan(config, database)
+	if err == nil {
+		t.Fatal("Expected an error when using empty categories.")
+	}
+}
