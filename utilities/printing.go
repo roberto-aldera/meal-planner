@@ -19,27 +19,6 @@ func PrintMealDatabase(mealDatabase []database.Meal) (err error) {
 	return err
 }
 
-func PrintExcludedMeals(mealMap map[int]database.Meal, previousMealsToExclude []int) (err error) {
-	if len(mealMap) == 0 {
-		err = errors.New("meal map is empty")
-		return err
-	}
-	if (len(previousMealsToExclude)) > 0 {
-		fmt.Println("These meals have been requested to be excluded:")
-		for _, mealID := range previousMealsToExclude {
-			_, keyIsValid := mealMap[mealID]
-			if keyIsValid {
-				fmt.Println(mealMap[mealID].MealName, "->", mealMap[mealID].ID)
-			} else {
-				err = fmt.Errorf("meal ID doesn't exist: %d", mealID)
-			}
-		}
-	} else {
-		fmt.Println("No meals were requested to be excluded.")
-	}
-	return err
-}
-
 func PrintMealPlan(weekPlan []database.Meal) (err error) {
 	dayNames := [...]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
 	if len(weekPlan) == 7 {

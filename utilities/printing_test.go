@@ -22,40 +22,6 @@ func TestPrintMealDatabase(t *testing.T) {
 	}
 }
 
-func TestPrintExcludedMeals(t *testing.T) {
-	// First just check with empty database
-	var emptyMealMap map[int]database.Meal
-	previousMealsToExclude := []int{103}
-	err := PrintExcludedMeals(emptyMealMap, previousMealsToExclude)
-	if err == nil {
-		t.Fatal("Expected an error when using an empty meal map.")
-	}
-
-	allMealsFromDatabase := newDatabase(t)
-	mealMap, _ := MakeMealMap(allMealsFromDatabase)
-
-	// Check if no meals were excluded
-	previousMealsToExclude = []int{}
-	err = PrintExcludedMeals(mealMap, previousMealsToExclude)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
-	// Check if excluded meal doesn't exist
-	previousMealsToExclude = []int{1}
-	err = PrintExcludedMeals(mealMap, previousMealsToExclude)
-	if err == nil {
-		t.Fatal("Expected an error when using a non-existent ID.")
-	}
-
-	// An finally check happy path runs as expected
-	previousMealsToExclude = []int{103}
-	err = PrintExcludedMeals(mealMap, previousMealsToExclude)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-}
-
 func TestPrintMealPlan(t *testing.T) {
 	// Check with a week plan full of empty meals
 	var emptyMeal database.Meal

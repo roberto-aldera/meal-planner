@@ -68,6 +68,13 @@ func TestLoadMealRequestsAndUpdateMap(t *testing.T) {
 	if len(mealMap) >= lengthOfOriginalMap {
 		t.Fatal("Updated meal map deletion did not occur as expected.")
 	}
+
+	config.PreferenceMealDaysOfWeek = []int{3}
+	config.PreferenceMealIDs = []int{199} // non-existent index
+	_, err = LoadMealRequestsAndUpdateMap(mealMap, config)
+	if err == nil {
+		t.Fatal("Expected an error when deleting a non-existent meal.")
+	}
 }
 
 func TestRemoveSpecificMeals(t *testing.T) {

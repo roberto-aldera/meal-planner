@@ -27,10 +27,15 @@ func MakeMealMap(allMealsFromDatabase []database.Meal) (mealMap map[int]database
 func LoadMealRequestsAndUpdateMap(mealMap map[int]database.Meal, config Config) (weekPlanWithRequests []database.Meal,
 	err error) {
 	weekPlanWithRequests = make([]database.Meal, 7)
-
 	for idx, weekDay := range config.PreferenceMealDaysOfWeek {
-		weekPlanWithRequests[weekDay] = mealMap[config.PreferenceMealIDs[idx]]
-		delete(mealMap, config.PreferenceMealIDs[idx])
+		_, keyIsValid := mealMap[config.PreferenceMealIDs[idx]]
+		if keyIsValid {
+			// TODO: reorganise config to simplify this interface of days and meal indices
+			weekPlanWithRequests[weekDay] = mealMap[config.PreferenceMealIDs[idx]]
+			delete(mealMap, config.PreferenceMealIDs[idx])
+		} else {
+			err = fmt.Errorf("meal key doesn't exist: %d", config.PreferenceMealIDs[idx])
+		}
 	}
 	return weekPlanWithRequests, err
 }

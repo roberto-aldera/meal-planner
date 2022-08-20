@@ -15,41 +15,9 @@ func MakeMealPlan(config utilities.Config, allMealsFromDatabase []database.Meal)
 		return fmt.Errorf("setupMealMap has failed %s", err)
 	}
 
-	weekPlanWithRequests, err := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
+	weekPlanWithRequests, err := assignPreferences(config, mealMap)
 	if err != nil {
-		fmt.Printf("LoadMealRequestsAndUpdateMap failed: %s", err)
-	}
-	err = utilities.PrintExcludedMeals(mealMap, config.PreviousMealsToExclude)
-	if err != nil {
-		fmt.Printf("PrintExcludedMeals failed: %s", err)
-	}
-	err = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
-	if err != nil {
-		fmt.Printf("RemoveSpecificMeals failed: %s", err)
-	}
-	err = utilities.RemoveSpecificMeals(mealMap, config.PreviousMealsToExclude)
-	if err != nil {
-		fmt.Printf("RemoveSpecificMeals failed: %s", err)
-	}
-	if config.ExcludeSoups {
-		soups, err := utilities.GetMealsInCategory("Soups", mealMap)
-		if err != nil {
-			fmt.Printf("GetMealsInCategory failed: %s", err)
-		}
-		err = utilities.RemoveSpecificMeals(mealMap, soups)
-		if err != nil {
-			fmt.Printf("RemoveSpecificMeals failed: %s", err)
-		}
-	}
-	if config.ExcludeLunches {
-		lunches, err := utilities.GetLunchMeals(mealMap)
-		if err != nil {
-			fmt.Printf("GetLunchMeals error: %s", err)
-		}
-		err = utilities.RemoveSpecificMeals(mealMap, lunches)
-		if err != nil {
-			fmt.Printf("RemoveSpecificMeals failed: %s", err)
-		}
+		return fmt.Errorf("assignPreferences has failed %s", err)
 	}
 
 	fmt.Println("--------------------------------------------------------------------------------")
@@ -111,6 +79,51 @@ func setupMealMap(config utilities.Config, allMealsFromDatabase []database.Meal)
 	fmt.Println("\n--------------------------------------------------------------------------------")
 
 	return mealMap, err
+}
+
+func assignPreferences(config utilities.Config, mealMap map[int]database.Meal) ([]database.Meal, error) {
+	weekPlanWithRequests, err := utilities.LoadMealRequestsAndUpdateMap(mealMap, config)
+	if err != nil {
+		fmt.Printf("LoadMealRequestsAndUpdateMap failed: %s", err)
+		return nil, err
+	}
+
+	// Print any meal exclusions
+	if (len(config.PreviousMealsToExclude)) > 0 {
+		fmt.Println("These meals have been requested to be excluded:")
+		for _, mealID := range config.PreviousMealsToExclude {
+			_, keyIsValid := mealMap[mealID]
+			if keyIsValid {
+				fmt.Println(mealMap[mealID].MealName, "->", mealMap[mealID].ID)
+			} else {
+				return nil, fmt.Errorf("meal ID doesn't exist: %d", mealID)
+			}
+		}
+	} else {
+		fmt.Println("No meals were requested to be excluded.")
+	}
+
+	err = utilities.RemoveSpecificMeals(mealMap, config.SpecialExclusions)
+	if err != nil {
+		return nil, fmt.Errorf("RemoveSpecificMeals failed: %s", err)
+	}
+	if config.ExcludeSoups {
+		soups, err := utilities.GetMealsInCategory("Soups", mealMap)
+		if err != nil {
+			return nil, fmt.Errorf("GetMealsInCategory failed: %s", err)
+		}
+		// no need to check error, because we literally just got soups from the mealMap
+		utilities.RemoveSpecificMeals(mealMap, soups)
+	}
+	if config.ExcludeLunches {
+		lunches, err := utilities.GetLunchMeals(mealMap)
+		if err != nil {
+			return nil, fmt.Errorf("GetLunchMeals error: %s", err)
+		}
+		// no need to check error, because we literally just got lunches from the mealMap
+		utilities.RemoveSpecificMeals(mealMap, lunches)
+	}
+	return weekPlanWithRequests, err
 }
 
 func pickRandomMealsWithMap(mealMap map[int]database.Meal, weekPlanWithRequests []database.Meal, config utilities.Config) []database.Meal {
