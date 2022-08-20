@@ -22,10 +22,8 @@ func MakeMealPlan(config utilities.Config, allMealsFromDatabase []database.Meal)
 
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println("Your requested meals:")
-	err = utilities.PrintMealPlan(weekPlanWithRequests)
-	if err != nil {
-		fmt.Printf("PrintMealPlan failed: %s", err)
-	}
+	// no need to check error, because weekPlanWithRequests is length 7 by default
+	utilities.PrintMealPlan(weekPlanWithRequests)
 	fmt.Println("--------------------------------------------------------------------------------")
 
 	bestScore := config.MinimumScore // lower is better
@@ -34,7 +32,10 @@ func MakeMealPlan(config utilities.Config, allMealsFromDatabase []database.Meal)
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	for i := 0; i < config.NumberOfIterations; i++ {
-		weekPlan := pickRandomMealsWithMap(mealMap, weekPlanWithRequests, config)
+		weekPlan, err := pickRandomMealsWithMap(mealMap, weekPlanWithRequests, config)
+		if err != nil {
+			fmt.Printf("pickRandomMealsWithMap failed: %s", err)
+		}
 		mealPlanScore, err := utilities.CalculateScore(weekPlan, config)
 		if err != nil {
 			fmt.Printf("CalculateScore failed: %s", err)
@@ -126,7 +127,8 @@ func assignPreferences(config utilities.Config, mealMap map[int]database.Meal) (
 	return weekPlanWithRequests, err
 }
 
-func pickRandomMealsWithMap(mealMap map[int]database.Meal, weekPlanWithRequests []database.Meal, config utilities.Config) []database.Meal {
+func pickRandomMealsWithMap(mealMap map[int]database.Meal,
+	weekPlanWithRequests []database.Meal, config utilities.Config) ([]database.Meal, error) {
 	// Store map keys in a slice, and get N random items from this slice to use in the plan (to avoid picking duplicates)
 	sliceOfKeys := make([]int, 0)
 	for key := range mealMap {
@@ -150,17 +152,17 @@ func pickRandomMealsWithMap(mealMap map[int]database.Meal, weekPlanWithRequests 
 		}
 	}
 
-	// Debug: check for duplicates
+	// Check for duplicates before returning
 	tmpWeekPlan := make([]database.Meal, len(weekPlan))
 	copy(tmpWeekPlan, weekPlan)
 	visited := make(map[string]bool)
 	for i := 0; i < len(tmpWeekPlan); i++ {
 		if visited[tmpWeekPlan[i].MealName] {
-			fmt.Println("*** Duplicate found:", tmpWeekPlan[i].MealName)
+			return nil, fmt.Errorf("duplicate found: %s", tmpWeekPlan[i].MealName)
 		} else {
 			visited[tmpWeekPlan[i].MealName] = true
 		}
 	}
 
-	return weekPlan
+	return weekPlan, nil
 }

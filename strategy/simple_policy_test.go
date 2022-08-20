@@ -60,6 +60,16 @@ func TestMakeMealPlan(t *testing.T) {
 	if err != nil {
 		fmt.Printf("MakeMealPlan failed: %s", err)
 	}
+
+	// Using a database with a duplicate meal
+	config = newConfig(t)
+	database_with_duplicate_meal := newDatabase(t)
+	database_with_duplicate_meal[1].MealName = database_with_duplicate_meal[0].MealName
+
+	err = MakeMealPlan(config, database_with_duplicate_meal)
+	if err != nil {
+		fmt.Printf("MakeMealPlan failed: %s", err)
+	}
 }
 
 func TestMakeMealPlanWhenEmpty(t *testing.T) {
@@ -177,5 +187,18 @@ func TestAssignPreferencesExcludeLunches(t *testing.T) {
 	_, err = assignPreferences(config, mealMap)
 	if err == nil {
 		t.Fatal("Expected an error when excluding a non-existent meal.")
+	}
+}
+
+func TestPickRandomMealsWithMapWithDuplicateMeals(t *testing.T) {
+	config := newConfig(t)
+	database_with_duplicate_meal := newDatabase(t)
+	database_with_duplicate_meal[1].MealName = database_with_duplicate_meal[0].MealName
+	mealMap, _ := setupMealMap(config, database_with_duplicate_meal)
+	weekPlanWithRequests, _ := assignPreferences(config, mealMap)
+
+	_, err := pickRandomMealsWithMap(mealMap, weekPlanWithRequests, config)
+	if err != nil {
+		fmt.Printf("pickRandomMealsWithMap failed: %s", err)
 	}
 }
