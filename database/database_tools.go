@@ -16,25 +16,11 @@ type Meal struct {
 	IsQuick     bool
 }
 
-func RunMe() {
-	fmt.Println("Hello from database_tools!")
-
-	// open database
-	sqliteDatabase, _ := sql.Open("sqlite3", "/Users/roberto/github-code/meal-planner/localdata/meal-data.db")
-	defer sqliteDatabase.Close()
-
-	displayEntries(sqliteDatabase)
-	fmt.Println("All done!")
-}
-
 func countNumberOfRows(db *sql.DB) int {
 	var numRows int
 	err := db.QueryRow("SELECT COUNT(*) FROM meals").Scan(&numRows)
-	switch {
-	case err != nil:
-		log.Fatal(err)
-	default:
-		// log.Printf("Number of rows are %d\n", numRows)
+	if err != nil {
+		fmt.Println(err)
 	}
 	return numRows
 }
@@ -55,11 +41,6 @@ func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 		i++
 	}
 	return allMeals
-}
-
-func displayEntries(db *sql.DB) {
-	allMeals := LoadDatabaseEntriesIntoContainer(db)
-	log.Println(allMeals)
 }
 
 // Generate 3-digit unique IDs for each meal to be used to keep track of them in the database
