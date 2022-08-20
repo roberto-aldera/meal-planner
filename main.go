@@ -28,7 +28,10 @@ func main() {
 	if config.MealDatabasePath != "" {
 		sqliteDatabase, _ := sql.Open("sqlite3", config.MealDatabasePath)
 		defer sqliteDatabase.Close()
-		allMealsFromDatabase := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+		allMealsFromDatabase, err := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+		if err != nil {
+			fmt.Printf("Failure in loading meals from database: %s", err)
+		}
 		strategy.MakeMealPlan(config, allMealsFromDatabase)
 	} else {
 		panic("No meal database path was provided in the configuration file.")

@@ -28,14 +28,14 @@ func createMealTable(db *sql.DB) {
 	fmt.Println("Meals table created")
 }
 
-func insertMealIntoDatabase(db *sql.DB, name string, tomato_based string) {
+func insertMealIntoDatabase(db *sql.DB, name string, category string) {
 	fmt.Println("Inserting meal record ...")
 	insertMealSQL := `INSERT INTO meals(Meal, Category) VALUES (?, ?)`
 	statement, err := db.Prepare(insertMealSQL)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	_, err = statement.Exec(name, tomato_based)
+	_, err = statement.Exec(name, category)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -60,4 +60,21 @@ func TestLoadDatabaseEntriesIntoContainer(t *testing.T) {
 	insertMealIntoDatabase(sqliteDatabase, "Ragu", "Pasta")
 
 	LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+
+	// Now try with missing column
+	query := `ALTER TABLE meals
+			RENAME COLUMN Category TO badColumn`
+	statement, err := sqliteDatabase.Prepare(query)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	_, err = statement.Exec()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	_, err = LoadDatabaseEntriesIntoContainer(sqliteDatabase)
+	if err == nil {
+		t.Fatal("Expected an error when Category column is missing.")
+	}
+
 }

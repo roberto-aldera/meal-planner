@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"math/rand"
 )
 
@@ -25,10 +24,10 @@ func countNumberOfRows(db *sql.DB) int {
 	return numRows
 }
 
-func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
+func LoadDatabaseEntriesIntoContainer(db *sql.DB) ([]Meal, error) {
 	row, err := db.Query("SELECT ID, Meal, Hours, Category, Lunch, Quick FROM meals ORDER BY Category")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer row.Close()
 	numRows := countNumberOfRows(db)
@@ -40,7 +39,7 @@ func LoadDatabaseEntriesIntoContainer(db *sql.DB) []Meal {
 		allMeals[i] = meal
 		i++
 	}
-	return allMeals
+	return allMeals, err
 }
 
 // Generate 3-digit unique IDs for each meal to be used to keep track of them in the database
