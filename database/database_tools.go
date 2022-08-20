@@ -7,6 +7,15 @@ import (
 	"math/rand"
 )
 
+type Meal struct {
+	ID          int
+	MealName    string
+	CookingTime float64
+	Category    string
+	LunchOnly   bool
+	IsQuick     bool
+}
+
 func RunMe() {
 	fmt.Println("Hello from database_tools!")
 
@@ -16,15 +25,6 @@ func RunMe() {
 
 	displayEntries(sqliteDatabase)
 	fmt.Println("All done!")
-}
-
-type Meal struct {
-	ID          int
-	MealName    string
-	CookingTime float64
-	Category    string
-	LunchOnly   bool
-	IsQuick     bool
 }
 
 func countNumberOfRows(db *sql.DB) int {
