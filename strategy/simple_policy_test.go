@@ -40,6 +40,9 @@ func newConfig(t *testing.T) (config utilities.Config) {
 		fmt.Printf("Configuration has failed to load: %s", err)
 	}
 
+	// Reduce default iterations when testing, no need for this to be so high
+	config.NumberOfIterations = 50
+
 	err = utilities.ValidateConfiguration(config)
 	if err != nil {
 		fmt.Printf("Configuration validation failed: %s", err)
