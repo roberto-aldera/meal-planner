@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/golang/glog"
 	"github.com/roberto-aldera/meal-planner/database"
 )
 
@@ -45,7 +44,7 @@ func RemoveSpecificMeals(mealMap map[int]database.Meal, mealsToExclude []int) (e
 	for _, item := range mealsToExclude {
 		_, keyIsValid := mealMap[item]
 		if keyIsValid {
-			glog.Info("Removing ", mealMap[item].MealName)
+			fmt.Println("Removing ", mealMap[item].MealName)
 			delete(mealMap, item)
 		} else {
 			err = fmt.Errorf("meal key doesn't exist: %d", item)
