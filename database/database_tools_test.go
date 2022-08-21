@@ -78,3 +78,24 @@ func TestLoadDatabaseEntriesIntoContainer(t *testing.T) {
 	}
 
 }
+func TestCountNumberOfRows(t *testing.T) {
+	// And try with empty database
+	os.Remove("meals.db")
+
+	mealDatabasePath := t.TempDir() + "meals.db"
+	file, _ := os.Create(mealDatabasePath)
+	file.Close()
+
+	sqliteDatabase, _ := sql.Open("sqlite3", mealDatabasePath)
+	defer sqliteDatabase.Close()
+
+	_, err := countNumberOfRows(sqliteDatabase)
+	if err == nil {
+		t.Fatal("Expected an error when database is empty.")
+	}
+}
+
+func TestGenerateDeterministicMealIDs(t *testing.T) {
+	// Just run the function to check it works, nothing fancy here
+	GenerateDeterministicMealIDs()
+}

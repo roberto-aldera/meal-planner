@@ -15,13 +15,13 @@ type Meal struct {
 	IsQuick     bool
 }
 
-func countNumberOfRows(db *sql.DB) int {
+func countNumberOfRows(db *sql.DB) (int, error) {
 	var numRows int
 	err := db.QueryRow("SELECT COUNT(*) FROM meals").Scan(&numRows)
 	if err != nil {
 		fmt.Println(err)
 	}
-	return numRows
+	return numRows, err
 }
 
 func LoadDatabaseEntriesIntoContainer(db *sql.DB) ([]Meal, error) {
@@ -30,7 +30,7 @@ func LoadDatabaseEntriesIntoContainer(db *sql.DB) ([]Meal, error) {
 		return nil, err
 	}
 	defer row.Close()
-	numRows := countNumberOfRows(db)
+	numRows, err := countNumberOfRows(db)
 	var allMeals = make([]Meal, numRows)
 	i := 0
 	for row.Next() {
