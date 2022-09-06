@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/roberto-aldera/meal-planner/database"
 	"github.com/roberto-aldera/meal-planner/strategy"
 	"github.com/roberto-aldera/meal-planner/utilities"
