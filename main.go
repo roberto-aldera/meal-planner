@@ -26,7 +26,11 @@ func main() {
 
 	// Load meals from database and print out all candidates
 	if config.MealDatabasePath != "" {
-		sqliteDatabase, _ := sql.Open("sqlite3", config.MealDatabasePath)
+		sqliteDatabase, err := sql.Open("sqlite3", config.MealDatabasePath)
+		if err != nil {
+			fmt.Printf("Failure in opening meal database: %s", err)
+		}
+		fmt.Printf("sqliteDatabase.Stats(): %v\n", sqliteDatabase.Stats())
 		defer sqliteDatabase.Close()
 		allMealsFromDatabase, err := database.LoadDatabaseEntriesIntoContainer(sqliteDatabase)
 		if err != nil {
